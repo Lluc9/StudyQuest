@@ -12,9 +12,10 @@ export default function UpcomingTasks({ tasks, pendingCount, onToggleTask, subje
       title={t('home.upcomingTasks')}
       headerRight={t('home.pending', { count: pendingCount })}
       className="task-list-card"
+      data-tutorial="tutorial-upcoming-tasks"
     >
       <ul className="task-list">
-        {tasks.map((task) => {
+        {tasks.map((task, index) => {
           const subject = getSubjectInfo(subjectsById, task.subjectId)
           return (
             <li
@@ -29,6 +30,7 @@ export default function UpcomingTasks({ tasks, pendingCount, onToggleTask, subje
                 className="task-checkbox"
                 aria-label={task.completed ? t('home.markPending') : t('home.markCompleted')}
                 onClick={() => onToggleTask(task.id)}
+                data-tutorial={index === 0 ? 'tutorial-task-checkbox' : undefined}
               >
                 {task.completed ? (
                   <IconCheckboxChecked width={18} height={18} color="var(--accent-green)" />

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import LevelHeader from '../components/rewards/LevelHeader'
 import RewardsTabs from '../components/rewards/RewardsTabs'
 import LevelListItem from '../components/rewards/LevelListItem'
@@ -8,6 +8,7 @@ import AchievementCard from '../components/rewards/AchievementCard'
 import { unlockCategories } from '../data/rewardsData'
 import { LEVELS } from '../utils/levelSystem'
 import { useApp } from '../context/AppContext'
+import { getTutorialStepId } from '../components/tutorial/tutorialSteps'
 import './RewardsPage.css'
 
 function getLevelStatus(level, currentLevelNumber) {
@@ -17,9 +18,21 @@ function getLevelStatus(level, currentLevelNumber) {
 }
 
 export default function RewardsPage() {
-  const { t, user, unlocks, achievements, purchaseUnlock } = useApp()
+  const { t, settings, user, unlocks, achievements, purchaseUnlock } = useApp()
   const [activeTab, setActiveTab] = useState('nivells')
   const [activeCategory, setActiveCategory] = useState('tots')
+  const tutorialStepId = getTutorialStepId(settings)
+
+  // El Tutorial inicial obre ell mateix la pestanya que ressalta a cada
+  // pas ("Nivells" per a l'XP total/disponible de `LevelHeader`,
+  // "Desbloquejos" per a la targeta d'exemple) — mai fora del tutorial.
+  useEffect(() => {
+    if (tutorialStepId === 'xp-block') setActiveTab('nivells')
+    if (tutorialStepId === 'unlock-card') {
+      setActiveTab('desbloquejos')
+      setActiveCategory('tots')
+    }
+  }, [tutorialStepId])
 
   const tabs = [
     { id: 'nivells', label: t('rewards.tabs.levels') },
@@ -60,8 +73,13 @@ export default function RewardsPage() {
             onSelect={setActiveCategory}
           />
           <div className="unlocks-grid">
-            {visibleUnlocks.map((unlock) => (
-              <UnlockCard key={unlock.id} unlock={unlock} onPurchase={purchaseUnlock} />
+            {visibleUnlocks.map((unlock, index) => (
+              <UnlockCard
+                key={unlock.id}
+                unlock={unlock}
+                onPurchase={purchaseUnlock}
+                isTutorialTarget={tutorialStepId === 'unlock-card' && index === 0}
+              />
             ))}
           </div>
         </div>

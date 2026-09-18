@@ -11,6 +11,7 @@ export default function DailyGoals({ goals, completedCount }) {
       title={t('home.dailyGoal')}
       icon={<IconTrophy width={15} height={15} color="var(--accent-yellow)" />}
       headerRight={t('home.completedCount', { count: completedCount, total: goals.length })}
+      data-tutorial="tutorial-daily-goal"
     >
       <div className="daily-goals-grid">
         {goals.map((goal) => {

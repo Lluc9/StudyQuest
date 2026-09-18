@@ -79,6 +79,15 @@ function buildInitialSettings() {
     username: seedUser.name,
     language: DEFAULT_LANGUAGE,
     onboardingComplete: true,
+    // Mateix criteri que `onboardingComplete`: `true` per defecte perquè
+    // aquesta funció també completa un `settings` ja persistit — una
+    // sessió de proves anterior al Tutorial inicial no té aquest camp i
+    // no ha de veure's obligada a fer-lo (només `buildInitialState()` i
+    // `buildFreshState()` el sobreescriuen a `false` per a un usuari
+    // realment nou). `tutorialStepIndex` permet reprendre el tutorial pel
+    // mateix pas si es recarrega la pàgina a mitja seqüència.
+    tutorialComplete: true,
+    tutorialStepIndex: 0,
     avatarDataUrl: null,
     sessionActive: true,
     notifications: {
@@ -172,7 +181,7 @@ function buildInitialState() {
     // reconstruir "Tendència XP" a Perfil — mai un sistema paral·lel.
     // Veure `finalizeDispatch`/`collectDispatchEvents` més avall.
     eventLog: [],
-    settings: { ...buildInitialSettings(), onboardingComplete: false },
+    settings: { ...buildInitialSettings(), onboardingComplete: false, tutorialComplete: false, tutorialStepIndex: 0 },
   }
 }
 
@@ -222,6 +231,11 @@ function buildFreshState(state, { username, language }) {
       username: trimmedUsername || defaultSettings.username,
       language: resolvedLanguage,
       onboardingComplete: true,
+      // Usuari real i nou: encara li falta el Tutorial inicial (veure
+      // `TutorialOverlay.jsx`) — mai `true` aquí, a diferència del valor
+      // per defecte de `buildInitialSettings()` (pensat per a migració).
+      tutorialComplete: false,
+      tutorialStepIndex: 0,
     },
   }
 }
@@ -739,6 +753,22 @@ function completeOnboarding(state, payload) {
   return renewal ? { ...fresh, ...renewal } : fresh
 }
 
+// Tutorial inicial (`TutorialOverlay.jsx`, `COMPLETE_TUTORIAL`/
+// `SKIP_TUTORIAL`): "Saltar tutorial" té exactament el mateix efecte que
+// acabar-lo normalment (demanat explícitament a l'encàrrec) — mai torna
+// a aparèixer, l'usuari no queda "a mitges" per sempre.
+function finishTutorial(state) {
+  return { ...state, settings: { ...state.settings, tutorialComplete: true } }
+}
+
+// Desa el pas actual mentre el tutorial està en marxa, perquè recarregar
+// la pàgina a mitja seqüència el continuï pel mateix punt en lloc de
+// reiniciar-lo — reutilitza la mateixa persistència de `settings` que ja
+// existeix, tal com suggeria l'encàrrec.
+function setTutorialStep(state, stepIndex) {
+  return { ...state, settings: { ...state.settings, tutorialStepIndex: stepIndex } }
+}
+
 // Afegeix qualsevol desbloqueig AUTOMÀTIC i assoliment que ja compleixi
 // el seu requisit i encara no s'hagi obtingut. Es crida al final de CADA
 // acció del reducer (i a la càrrega inicial), perquè cap camí (completar
@@ -905,6 +935,13 @@ function reducer(state, action) {
       break
     case 'COMPLETE_ONBOARDING':
       next = completeOnboarding(current, action.payload)
+      break
+    case 'COMPLETE_TUTORIAL':
+    case 'SKIP_TUTORIAL':
+      next = finishTutorial(current)
+      break
+    case 'SET_TUTORIAL_STEP':
+      next = setTutorialStep(current, action.stepIndex)
       break
     default:
       next = current
@@ -1249,6 +1286,9 @@ export function AppProvider({ children }) {
       setSessionActive: (sessionActive) => dispatch({ type: 'SET_SESSION_ACTIVE', sessionActive }),
       restartApp: () => dispatch({ type: 'RESET_APP' }),
       completeOnboarding: (payload) => dispatch({ type: 'COMPLETE_ONBOARDING', payload }),
+      completeTutorial: () => dispatch({ type: 'COMPLETE_TUTORIAL' }),
+      skipTutorial: () => dispatch({ type: 'SKIP_TUTORIAL' }),
+      setTutorialStep: (stepIndex) => dispatch({ type: 'SET_TUTORIAL_STEP', stepIndex }),
     }),
     [selectors],
   )

@@ -83,7 +83,12 @@ export default function CalendarPage() {
     <div className="calendar-page">
       <header className="calendar-page-header">
         <h1>{t('calendar.title')}</h1>
-        <button type="button" className="calendar-new-activity-btn" onClick={() => setIsModalOpen(true)}>
+        <button
+          type="button"
+          className="calendar-new-activity-btn"
+          onClick={() => setIsModalOpen(true)}
+          data-tutorial="tutorial-new-activity-btn"
+        >
           <span className="calendar-new-activity-plus">+</span> {t('calendar.newActivity')}
         </button>
       </header>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import RecommendationCard from '../components/missions/RecommendationCard'
 import MissionFilters from '../components/missions/MissionFilters'
 import MissionCard from '../components/missions/MissionCard'
@@ -8,11 +8,13 @@ import DifficultyBreakdown from '../components/missions/DifficultyBreakdown'
 import PersonalMissionForm from '../components/missions/PersonalMissionForm'
 import { filters } from '../data/missionsData'
 import { useApp } from '../context/AppContext'
+import { getTutorialStepId } from '../components/tutorial/tutorialSteps'
 import './MissionsPage.css'
 
 export default function MissionsPage() {
   const {
     t,
+    settings,
     missions,
     missionStats,
     missionRecommendations,
@@ -23,6 +25,17 @@ export default function MissionsPage() {
     createPersonalMission,
   } = useApp()
   const [activeFilter, setActiveFilter] = useState('totes')
+  const tutorialStepId = getTutorialStepId(settings)
+
+  // Mentre el Tutorial inicial ressalta una missió disponible, assegura
+  // que el filtre "Totes" la mostri (si l'usuari l'hagués canviat abans)
+  // — mai força el filtre fora del tutorial.
+  useEffect(() => {
+    if (tutorialStepId === 'start-mission') setActiveFilter('totes')
+  }, [tutorialStepId])
+
+  const tutorialTargetMissionId =
+    tutorialStepId === 'start-mission' ? missions.find((m) => m.status === 'available')?.id : undefined
 
   const filterCounts = useMemo(() => {
     const counts = { totes: missions.length }
@@ -89,6 +102,7 @@ export default function MissionsPage() {
                 adjustMissionProgress(missionId, conditionId, delta)
               }
               onComplete={completeMission}
+              isTutorialTarget={mission.id === tutorialTargetMissionId}
             />
           ))}
         </ul>

@@ -12,14 +12,17 @@ const ICONS = {
   sword: IconSword,
 }
 
-export default function UnlockCard({ unlock, onPurchase }) {
+export default function UnlockCard({ unlock, onPurchase, isTutorialTarget = false }) {
   const { t } = useApp()
   const { id, title, description, icon, xpRequired, levelRequired, unlockType, cost, owned, eligible, canPurchase } = unlock
   const Icon = ICONS[icon] ?? IconStar
   const isLocked = !owned && !eligible
 
   return (
-    <div className={`unlock-card${owned ? '' : ' is-locked'}`}>
+    <div
+      className={`unlock-card${owned ? '' : ' is-locked'}`}
+      data-tutorial={isTutorialTarget ? 'tutorial-unlock-card' : undefined}
+    >
       <div className={`unlock-icon${owned ? '' : ' is-locked'}`}>
         <Icon width={18} height={18} />
       </div>

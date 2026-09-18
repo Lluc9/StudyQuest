@@ -51,6 +51,11 @@ tienen ya funcionalidad real conectada al mismo estado global.
   en `seedData.js`; ahora se calcula siempre a partir de `new Date()`
   (`getTodayKey()`), igual que ya hacían las missions. Ver sección
   "Sincronitzar el dia d'avui amb la data real" más abajo.
+- **Tutorial inicial**: recorregut guiat "spotlight" de 8 pasos justo
+  después del Onboarding (Inici, Calendari, Missions, Recompenses, Perfil
+  — Configuració queda fuera), con pasos activos donde el usuario hace la
+  acción real (crear una tarea, completarla, iniciar una misión) para
+  avanzar. Ver sección "Tutorial inicial" más abajo.
 
 ### Elementos ya dibujados pero SIN conectar (decorativos)
 
@@ -1414,6 +1419,125 @@ l'assoliment desbloquejat) i el va comptar al mes "Ago" del gràfic
 "Tendència XP". Repetit després d'un reinici (`RESET_APP`) amb el mateix
 resultat. Cap error de consola navegant les 6 pantalles. `localStorage`
 buidat en acabar.
+
+## Tutorial inicial
+
+**Objetivo** (`ENCARREC_Tutorial_Inicial.md`): recorregut guiat "spotlight"
+de 8 passos per a l'usuari nou, just després de l'Onboarding — Inici (2),
+Calendari (1), tornada a Inici (1), Missions (1), Recompenses (2) i Perfil
+(1). Configuració queda fora. Als passos clau l'usuari ha de fer l'acció
+real (crear una tasca, completar-la, iniciar una missió) per avançar, no
+només llegir.
+
+### 1. Estat i activació
+
+Dos camps nous a `settings` (mateix criteri de migració que
+`onboardingComplete`): `tutorialComplete` (per defecte `true` a
+`buildInitialSettings()` — una partida de proves anterior a aquesta fase
+no ha de veure's obligada a fer el tutorial; només `false` a
+`buildInitialState()`/`buildFreshState()`, per a un usuari realment nou) i
+`tutorialStepIndex` (per reprendre pel mateix pas si es recarrega la
+pàgina a mitges — punt 5 de l'encàrrec). Accions noves al reducer:
+`COMPLETE_TUTORIAL`/`SKIP_TUTORIAL` (la mateixa funció `finishTutorial()`
+per a totes dues — "Saltar" té exactament el mateix efecte que acabar-lo,
+tal com demanava l'encàrrec) i `SET_TUTORIAL_STEP`.
+
+`App.jsx` renderitza `<TutorialOverlay>` dins d'`AppShell`, com a germà de
+`Sidebar`/`main` (mai una pantalla a part com l'Onboarding), quan
+`settings.onboardingComplete && !settings.tutorialComplete`.
+
+### 2. `TutorialOverlay.jsx` — patró "spotlight"
+
+- **Localització de l'element**: atribut `data-tutorial="<id>"` als
+  components concrets (mai classes CSS) — `Card` (`components/common/
+  Card.jsx`) ara reenvia `...rest` a la `<section>` perquè `DailyGoals`/
+  `UpcomingTasks` el puguin fer servir directament.
+- **Retallat visual**: 4 `<div>` foscos que tapen tota la pantalla EXCEPTE
+  un requadre al voltant de l'element (mai una màscara SVG amb "forat" —
+  més simple i igual de fiable). Els 4 divs capturen clics (bloquegen la
+  resta de la interfície als passos explicatius); un cinquè div decoratiu
+  (`.tutorial-ring`, vora + resplendor) té `pointer-events: none` perquè
+  als passos "actius" l'element real de sota (botó, checkbox) segueixi
+  sent clicable.
+- **z-index**: per sota del modal de Calendari (50, veure `calendar.css`)
+  — si l'usuari obre el `NewActivityModal` real durant el pas 3, el
+  cobreix per complet sense competir-hi visualment.
+- **Seguiment de l'element**: `getBoundingClientRect()` recalculat en
+  canviar de pas, en redimensionar la finestra i cada 400ms (sense
+  dependre de cap listener de scroll concret, ja que cada pantalla pot
+  tenir un contenidor diferent que faci scroll).
+- **Canvi de pantalla**: reutilitza la mateixa `setActiveScreen` que ja
+  rep `AppShell` — `TutorialOverlay` la crida ell mateix quan el pas ho
+  demana (p. ex. saltar a Calendari pel pas 3).
+
+### 3. Passos "actius": l'usuari fa l'acció real, no hi ha "Endavant"
+
+Font única dels 8 passos: `src/components/tutorial/tutorialSteps.js`
+(`TUTORIAL_STEPS` + `getTutorialStepId(settings)`, usada també per
+pantalles que necessiten reaccionar-hi — veure més avall). Cada pas actiu
+es detecta comparant l'estat actual (`activities`/`tasks`/`missions`, tots
+ja disponibles a `useApp()`) sense necessitat de "recordar" cap ID
+concret entre renders:
+- **Nova activitat** (Calendari): avança quan `activities` deixa de ser
+  buit (`Object.values(activities).reduce(...)  > 0`) — segur perquè un
+  usuari que arriba aquí ve sempre de l'Onboarding amb `activities: {}`.
+- **Completar tasca** (tornada a Inici): avança quan `tasks[0].completed`
+  — únic element de la llista en aquest punt del recorregut, per això no
+  calia cap ID trackejat: n'hi ha prou amb l'`index === 0` de
+  `UpcomingTasks.jsx`.
+- **Iniciar missió**: avança comparant un COMPTADOR ("missions ja no
+  `available`") capturat en entrar al pas (`useRef`) contra el mateix
+  comptador en cada canvi de `missions` — mai una missió concreta per ID,
+  perquè la llista es pot reordenar sense que això compti com "trampa".
+
+### 4. Passos que necessiten obrir una pestanya/filtre concret
+
+`RewardsPage.jsx` (pestanya "Desbloquejos" pel pas 7) i `MissionsPage.jsx`
+(filtre "Totes" pel pas 5) gestionen aquest estat com a `useState` LOCAL
+seu, no lligat a l'Onboarding ni a cap ruta — el Tutorial no els pot obrir
+via `setActiveScreen`. Solució minimal: cada pantalla crida
+`getTutorialStepId(settings)` (mateixa font que `TutorialOverlay`) i, amb
+un `useEffect` d'una línia, força la pestanya/filtre correcte només quan
+el pas actual és el que l'afecta — mai fora del tutorial, no interfereix
+amb la navegació normal de l'usuari un cop acabat.
+
+**MissionCard**/**UnlockCard** reben un nou prop `isTutorialTarget`
+(booleà) que aplica `data-tutorial` només a la instància correcta (la
+primera missió `available`/el primer desbloqueig visible), calculat a la
+pàgina pare — mai al component de la llista mateix, que no sap res del
+tutorial.
+
+### Problema trobat i corregit: salt momentani al canviar de pas
+
+En avançar d'un pas actiu al següent (p. ex. de "Completar tasca" a
+"Iniciar missió", que també canvia de pantalla), l'anell apareixia un
+instant sobre la posició de l'element del pas ANTERIOR abans de corregir-
+se sol (el `setInterval` de 400ms ho arreglava, però es notava un salt
+visual lleig). Causa: el `rect` de l'estat no s'esborrava fins que la
+següent consulta trobava l'element nou. **Solució**: `setRect(null)` a
+l'inici mateix de l'efecte que recalcula la posició (abans de fer cap
+consulta), perquè el canvi de pas mostri sempre "sense element trobat
+encara" (targeta centrada, sense anell) en lloc d'un anell mal posicionat.
+
+### Verificat en navegador
+
+Recorregut complet de principi a fi després de l'Onboarding: els 8 passos
+en ordre correcte, canvis de pantalla automàtics (Inici→Calendari→Inici→
+Missions→Recompenses→Perfil), pestanya "Nivells"/"Desbloquejos" oberta
+sola als passos 6/7. Creada una activitat real al pas 3 (el modal real es
+va obrir per sobre sense conflictes de z-index) → avanç automàtic.
+Completada la tasca al pas 4 → avanç automàtic (XP/nivell actualitzats
+amb normalitat, mateix comportament que sense tutorial). Iniciada una
+missió al pas 5 → avanç automàtic. "Saltar tutorial" des del pas 1 →
+`tutorialComplete: true`, overlay desapareix, app totalment interactiva.
+Recàrrega de la pàgina a mig recorregut (pas 6 desat manualment a
+`localStorage`) → reprèn exactament al mateix pas, pantalla i pestanya
+correctes. Verificat en anglès (canvi d'idioma a mig tutorial): textos,
+botons i indicador de progrés traduïts correctament — els noms de mes/dia
+del Calendari es mantenen en català, limitació ja coneguda i documentada,
+no introduïda ni corregida per aquesta fase. Cap error de consola. Un cop
+acabat, navegades les 6 pantalles amb normalitat, sense cap rastre del
+tutorial. `localStorage` buidat en acabar les proves.
 
 ## Convenciones a mantener
 

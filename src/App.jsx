@@ -8,6 +8,7 @@ import RewardsPage from './pages/RewardsPage'
 import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import OnboardingPage from './pages/OnboardingPage'
+import TutorialOverlay from './components/tutorial/TutorialOverlay'
 import SettingsSidebar from './components/settings/SettingsSidebar'
 import Toast from './components/common/Toast'
 import { playNotificationSound } from './components/common/notificationSound'
@@ -112,6 +113,12 @@ function AppShell({ activeScreen, setActiveScreen, activeSettingsSection, setAct
         {activeScreen === 'configuracio' && <SettingsPage activeSection={activeSettingsSection} />}
       </main>
       <Toast toast={toast} onDismiss={() => setToast(null)} />
+      {/* Tutorial inicial: només després de l'Onboarding i mentre no
+          s'hagi acabat/saltat — per sobre de Sidebar + main, mai una
+          pantalla a part (veure NOTES.md, "Tutorial inicial"). */}
+      {settings.onboardingComplete && !settings.tutorialComplete && (
+        <TutorialOverlay activeScreen={activeScreen} setActiveScreen={setActiveScreen} />
+      )}
     </div>
   )
 }

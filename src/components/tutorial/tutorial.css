@@ -1,0 +1,113 @@
+/* ---------- TutorialOverlay ----------
+   Patró "spotlight": 4 rectangles foscos que tapen tota la pantalla
+   EXCEPTE un requadre al voltant de l'element ressaltat (mai una màscara
+   SVG amb "forat" — quatre divs és més senzill i igual de fiable). Els
+   rectangles sí capturen clics (bloquegen la resta de la interfície);
+   l'anell decoratiu no, perquè als passos "actius" l'element real de sota
+   (botó, checkbox...) continuï sent clicable. z-index per sota del modal
+   de Calendari (50) i del toast (100): si l'usuari obre el modal real
+   "Nova activitat", el cobreix per complet sense competir-hi. */
+.tutorial-mask {
+  position: fixed;
+  background: rgba(6, 7, 14, 0.74);
+  pointer-events: auto;
+  z-index: 45;
+  transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
+}
+
+.tutorial-mask--full {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.tutorial-ring {
+  position: fixed;
+  border: 2px solid var(--accent-purple-light);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.22), var(--shadow-glow-purple);
+  pointer-events: none;
+  z-index: 46;
+  transition: top 0.2s ease, left 0.2s ease, width 0.2s ease, height 0.2s ease;
+}
+
+.tutorial-card {
+  position: fixed;
+  width: 320px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  padding: 18px 20px;
+  z-index: 47;
+  transition: top 0.2s ease, left 0.2s ease;
+}
+
+.tutorial-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.tutorial-progress {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.tutorial-skip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.tutorial-skip-btn:hover {
+  color: var(--accent-red);
+}
+
+.tutorial-card-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.tutorial-card-body {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.tutorial-next-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.tutorial-waiting-hint {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--accent-purple-light);
+  text-align: center;
+  padding: 8px 0;
+}
+
+@media (max-width: 480px) {
+  .tutorial-card {
+    width: calc(100vw - 32px);
+  }
+}

@@ -4,9 +4,9 @@ import './common.css'
  * Contenedor visual genérico ("panel") usado por casi todos los bloques
  * del dashboard. Puramente presentacional.
  */
-export default function Card({ title, icon, headerRight, children, className = '' }) {
+export default function Card({ title, icon, headerRight, children, className = '', ...rest }) {
   return (
-    <section className={`card ${className}`}>
+    <section className={`card ${className}`} {...rest}>
       {(title || headerRight) && (
         <header className="card-header">
           <div className="card-header-title">

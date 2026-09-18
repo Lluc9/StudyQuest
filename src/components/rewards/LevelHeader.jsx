@@ -17,7 +17,7 @@ export default function LevelHeader() {
             <h2 className="level-header-name">{user.levelName}</h2>
           </div>
         </div>
-        <div className="level-header-right">
+        <div className="level-header-right" data-tutorial="tutorial-xp-block">
           <div className="level-header-xp-block">
             <span className="level-header-xp">{user.xpTotal.toLocaleString('ca-ES')}</span>
             <span className="level-header-xp-label">{t('rewards.xpTotalLabel')}</span>

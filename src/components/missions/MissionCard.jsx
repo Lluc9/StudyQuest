@@ -40,7 +40,7 @@ function ManualStepper({ current, target, onAdjust, t }) {
   )
 }
 
-export default function MissionCard({ mission, onStart, onAdjustProgress, onComplete }) {
+export default function MissionCard({ mission, onStart, onAdjustProgress, onComplete, isTutorialTarget = false }) {
   const { t } = useApp()
   const {
     id,
@@ -66,7 +66,10 @@ export default function MissionCard({ mission, onStart, onAdjustProgress, onComp
   const percent = progressTarget > 0 ? (progressCurrent / progressTarget) * 100 : 0
 
   return (
-    <li className={`mission-card${isCompleted ? ' is-completed' : ''}`}>
+    <li
+      className={`mission-card${isCompleted ? ' is-completed' : ''}`}
+      data-tutorial={isTutorialTarget ? 'tutorial-mission-card' : undefined}
+    >
       <div className={`mission-icon${isCompleted ? ' is-completed' : ''}`}>
         {isCompleted ? <IconCheckCircle width={17} height={17} /> : <TypeIcon width={17} height={17} />}
       </div>

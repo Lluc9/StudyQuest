@@ -2,7 +2,7 @@ import './profile.css'
 
 export default function ProfileStats({ stats }) {
   return (
-    <div className="profile-stats-grid">
+    <div className="profile-stats-grid" data-tutorial="tutorial-profile-stats">
       {stats.map((stat) => (
         <div className="profile-stat-card" key={stat.id}>
           <span className={`profile-stat-value profile-stat-value--${stat.color}`}>{stat.value}</span>

@@ -283,6 +283,31 @@ const ca = {
   'subjects.addCancel': 'Cancel·la',
   'subjects.addTrigger': 'Afegeix una altra matèria',
   'subjects.removeAria': 'Eliminar {{name}}',
+
+  'tutorial.skip': 'Saltar tutorial',
+  'tutorial.next': 'Endavant',
+  'tutorial.finish': 'Acabar',
+  'tutorial.progress': 'Pas {{n}} de {{total}}',
+  'tutorial.waitingHint': "Fes l'acció per continuar",
+  'tutorial.step.todayGoal.title': "Objectiu d'avui",
+  'tutorial.step.todayGoal.body': "Cada dia tens uns quants reptes senzills. Completa'ls per guanyar XP.",
+  'tutorial.step.upcomingTasks.title': 'Tasques previstes',
+  'tutorial.step.upcomingTasks.body': 'Aquí veuràs les teves properes activitats, ordenades per data i hora.',
+  'tutorial.step.newActivity.title': 'Crea la teva primera activitat',
+  'tutorial.step.newActivity.body': "Prem aquest botó i omple el formulari per afegir una tasca d'estudi.",
+  'tutorial.step.completeTask.title': 'Marca-la com a feta',
+  'tutorial.step.completeTask.body': "Fes clic al quadrat per completar-la — veuràs com guanyes XP a l'instant.",
+  'tutorial.step.startMission.title': 'Inicia una missió',
+  'tutorial.step.startMission.body': 'Les missions et donen XP extra. Prem "Iniciar missió" per començar-ne una.',
+  'tutorial.step.xpBlock.title': 'XP total vs. XP disponible',
+  'tutorial.step.xpBlock.body':
+    'El XP total mai baixa i determina el teu nivell. El XP disponible és el que pots gastar en desbloquejos.',
+  'tutorial.step.unlockCard.title': 'Desbloquejos',
+  'tutorial.step.unlockCard.body':
+    'Amb el XP disponible pots comprar millores i contingut. Encara no en tens prou — ja hi arribaràs!',
+  'tutorial.step.profileStats.title': 'El teu progrés',
+  'tutorial.step.profileStats.body':
+    "Aquí tens les teves estadístiques i, una mica més avall, l'historial d'activitat recent.",
 }
 
 const es = {
@@ -549,6 +574,31 @@ const es = {
   'subjects.addCancel': 'Cancelar',
   'subjects.addTrigger': 'Añadir otra materia',
   'subjects.removeAria': 'Eliminar {{name}}',
+
+  'tutorial.skip': 'Saltar tutorial',
+  'tutorial.next': 'Siguiente',
+  'tutorial.finish': 'Terminar',
+  'tutorial.progress': 'Paso {{n}} de {{total}}',
+  'tutorial.waitingHint': 'Haz la acción para continuar',
+  'tutorial.step.todayGoal.title': 'Objetivo de hoy',
+  'tutorial.step.todayGoal.body': 'Cada día tienes unos retos sencillos. Complétalos para ganar XP.',
+  'tutorial.step.upcomingTasks.title': 'Tareas previstas',
+  'tutorial.step.upcomingTasks.body': 'Aquí verás tus próximas actividades, ordenadas por fecha y hora.',
+  'tutorial.step.newActivity.title': 'Crea tu primera actividad',
+  'tutorial.step.newActivity.body': 'Pulsa este botón y rellena el formulario para añadir una tarea de estudio.',
+  'tutorial.step.completeTask.title': 'Márcala como hecha',
+  'tutorial.step.completeTask.body': 'Haz clic en el cuadrado para completarla — verás cómo ganas XP al instante.',
+  'tutorial.step.startMission.title': 'Inicia una misión',
+  'tutorial.step.startMission.body': 'Las misiones te dan XP extra. Pulsa "Iniciar misión" para empezar una.',
+  'tutorial.step.xpBlock.title': 'XP total vs. XP disponible',
+  'tutorial.step.xpBlock.body':
+    'El XP total nunca baja y determina tu nivel. El XP disponible es el que puedes gastar en desbloqueos.',
+  'tutorial.step.unlockCard.title': 'Desbloqueos',
+  'tutorial.step.unlockCard.body':
+    'Con el XP disponible puedes comprar mejoras y contenido. Todavía no tienes suficiente — ¡ya llegarás!',
+  'tutorial.step.profileStats.title': 'Tu progreso',
+  'tutorial.step.profileStats.body':
+    'Aquí tienes tus estadísticas y, un poco más abajo, el historial de actividad reciente.',
 }
 
 const en = {
@@ -813,6 +863,30 @@ const en = {
   'subjects.addCancel': 'Cancel',
   'subjects.addTrigger': 'Add another subject',
   'subjects.removeAria': 'Remove {{name}}',
+
+  'tutorial.skip': 'Skip tutorial',
+  'tutorial.next': 'Next',
+  'tutorial.finish': 'Finish',
+  'tutorial.progress': 'Step {{n}} of {{total}}',
+  'tutorial.waitingHint': 'Do the action to continue',
+  'tutorial.step.todayGoal.title': "Today's goal",
+  'tutorial.step.todayGoal.body': 'Every day you get a few simple challenges. Complete them to earn XP.',
+  'tutorial.step.upcomingTasks.title': 'Upcoming tasks',
+  'tutorial.step.upcomingTasks.body': "Here you'll see your next activities, sorted by date and time.",
+  'tutorial.step.newActivity.title': 'Create your first activity',
+  'tutorial.step.newActivity.body': 'Press this button and fill in the form to add a study task.',
+  'tutorial.step.completeTask.title': 'Mark it as done',
+  'tutorial.step.completeTask.body': "Click the checkbox to complete it — you'll see how you earn XP instantly.",
+  'tutorial.step.startMission.title': 'Start a mission',
+  'tutorial.step.startMission.body': 'Missions give you extra XP. Press "Start mission" to begin one.',
+  'tutorial.step.xpBlock.title': 'Total XP vs. available XP',
+  'tutorial.step.xpBlock.body':
+    'Total XP never goes down and sets your level. Available XP is what you can spend on unlocks.',
+  'tutorial.step.unlockCard.title': 'Unlocks',
+  'tutorial.step.unlockCard.body':
+    "With available XP you can buy upgrades and content. You don't have enough yet — you'll get there!",
+  'tutorial.step.profileStats.title': 'Your progress',
+  'tutorial.step.profileStats.body': "Here are your stats and, a bit further down, your recent activity history.",
 }
 
 export const translations = { ca, es, en }
