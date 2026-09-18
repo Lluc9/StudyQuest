@@ -1,0 +1,12 @@
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 640px;
+}
+
+.settings-page h1 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+}

@@ -1,0 +1,125 @@
+:root {
+  /* Fondo */
+  --bg-app: #0a0b12;
+  --bg-sidebar: #0d0e17;
+  --bg-card: #12141e;
+  --bg-card-soft: #171927;
+  --bg-hover: #1a1c2a;
+
+  /* Bordes */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-card: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  /* Texto */
+  --text-primary: #f5f5f7;
+  --text-secondary: #9195a6;
+  --text-muted: #63677a;
+
+  /* Acentos */
+  --accent-purple: #8b5cf6;
+  --accent-purple-light: #a78bfa;
+  --accent-blue: #6366f1;
+  --accent-cyan: #22d3ee;
+  --accent-green: #34d399;
+  --accent-orange: #fb923c;
+  --accent-yellow: #fbbf24;
+  --accent-red: #f87171;
+
+  --gradient-brand: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
+
+  /* Radios */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  /* Sombras */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-glow-purple: 0 0 24px rgba(139, 92, 246, 0.25);
+
+  /* Tipografía */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Layout */
+  --sidebar-width: 220px;
+}
+
+/* ---------- Tema clar (Configuració → Aparença) ----------
+   S'aplica amb `data-theme="clar"` a <html> (veure l'efecte a
+   AppContext.jsx). Redefineix només els tokens de fons/vora/text — la
+   resta de l'app (que ja consumeix aquestes variables arreu) no necessita
+   cap canvi. */
+:root[data-theme='clar'] {
+  --bg-app: #f4f5f9;
+  --bg-sidebar: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-soft: #f1f2f7;
+  --bg-hover: #e9eaf3;
+
+  --border-subtle: rgba(15, 17, 32, 0.06);
+  --border-card: rgba(15, 17, 32, 0.09);
+  --border-strong: rgba(15, 17, 32, 0.16);
+
+  --text-primary: #14151f;
+  --text-secondary: #52546b;
+  --text-muted: #8b8ea3;
+}
+
+/* ---------- Color d'accent (Configuració → Aparença) ----------
+   `--accent-purple`/`--accent-purple-light`/`--gradient-brand` són els
+   tokens que ja fan servir botons primaris, navegació activa, barres de
+   progrés i vores destacades a tota l'app — es redefineixen aquí segons
+   `data-accent` per canviar-los globalment sense tocar cap component
+   (el nom "purple" es manté per no haver de re-anomenar-los arreu, però
+   passen a representar "color de marca" en general). "violeta" és el
+   valor per defecte (coincideix amb els tokens base de dalt). */
+:root[data-accent='cian'] {
+  --accent-purple: #0891b2;
+  --accent-purple-light: #22d3ee;
+  --gradient-brand: linear-gradient(135deg, #0891b2 0%, #22d3ee 100%);
+}
+:root[data-accent='verd'] {
+  --accent-purple: #059669;
+  --accent-purple-light: #34d399;
+  --gradient-brand: linear-gradient(135deg, #059669 0%, #34d399 100%);
+}
+:root[data-accent='taronja'] {
+  --accent-purple: #ea580c;
+  --accent-purple-light: #fb923c;
+  --gradient-brand: linear-gradient(135deg, #ea580c 0%, #fb923c 100%);
+}
+:root[data-accent='vermell'] {
+  --accent-purple: #dc2626;
+  --accent-purple-light: #f87171;
+  --gradient-brand: linear-gradient(135deg, #dc2626 0%, #f87171 100%);
+}
+:root[data-accent='blau'] {
+  --accent-purple: #4338ca;
+  --accent-purple-light: #6366f1;
+  --gradient-brand: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+}
+
+/* ---------- Mode compacte ----------
+   Zoom global del contingut (no del Sidebar/navegació, perquè els punts
+   de clic no canviïn de mida) — la manera més senzilla de "veure més
+   contingut" sense haver de tocar el padding de cada component un per
+   un. Suportat als navegadors basats en Chromium; als que no ho suporten
+   (p. ex. Firefox) l'interruptor queda desat i sense efecte visual —
+   limitació coneguda, documentada a NOTES.md. */
+[data-compact='true'] .app-main {
+  zoom: 0.88;
+}
+
+/* ---------- Animacions ----------
+   Quan estan desactivades, s'eliminen globalment transicions/animacions
+   no essencials sense haver-les de treure component a component. Els
+   canvis d'estat (p. ex. marcar una tasca) continuen funcionant igual,
+   només sense la transició visual. */
+[data-animations='off'] *,
+[data-animations='off'] *::before,
+[data-animations='off'] *::after {
+  transition-duration: 0s !important;
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}

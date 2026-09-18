@@ -1,0 +1,354 @@
+/* ---------- LevelHeader ---------- */
+.level-header-card {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(34, 211, 238, 0.08));
+  border-color: rgba(139, 92, 246, 0.25);
+}
+
+.level-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.level-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.level-header-badge {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--accent-purple-light);
+  background: rgba(139, 92, 246, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--accent-purple-light);
+}
+
+.level-header-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.level-header-name {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+
+.level-header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.level-header-xp-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.level-header-xp {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--accent-yellow);
+}
+
+.level-header-xp--available {
+  color: var(--accent-cyan);
+}
+
+.level-header-xp-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.level-header-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.level-header-progress-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.level-header-progress-track-wrap {
+  flex: 1;
+}
+
+.level-header-progress-caption {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ---------- RewardsTabs ---------- */
+.rewards-tabs {
+  display: inline-flex;
+  gap: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 4px;
+}
+
+.rewards-tab-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.rewards-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.rewards-tab-btn.is-active {
+  background: var(--gradient-brand);
+  color: white;
+}
+
+/* ---------- LevelListItem ---------- */
+.level-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.level-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+}
+
+.level-row--futur {
+  opacity: 0.55;
+}
+
+.level-row--actual {
+  border-color: var(--accent-purple-light);
+  background: rgba(139, 92, 246, 0.08);
+}
+
+.level-badge {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--level-color, var(--border-strong));
+  color: var(--level-color, var(--text-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.level-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.level-info-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.level-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.level-xp {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.level-status-icon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+/* ---------- UnlockFilters ---------- */
+.reward-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.reward-filter-btn {
+  border: 1px solid var(--border-card);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.reward-filter-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.reward-filter-btn.is-active {
+  background: rgba(139, 92, 246, 0.18);
+  border-color: var(--accent-purple-light);
+  color: var(--accent-purple-light);
+}
+
+/* ---------- UnlockCard / AchievementCard ---------- */
+.unlocks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.unlock-card {
+  display: flex;
+  gap: 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+}
+
+.unlock-card.is-locked {
+  opacity: 0.55;
+}
+
+.unlock-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(52, 211, 153, 0.14);
+  color: var(--accent-green);
+}
+
+.unlock-icon.is-locked {
+  background: var(--bg-card-soft);
+  color: var(--text-muted);
+}
+
+.unlock-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.unlock-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.unlock-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.unlock-description {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.unlock-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.unlock-xp {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--accent-yellow);
+}
+
+.unlock-lock-icon {
+  color: var(--text-muted);
+}
+
+.unlock-buy-btn {
+  margin-top: 4px;
+  align-self: flex-start;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 7px 14px;
+  background: var(--gradient-brand);
+  color: white;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.unlock-buy-btn:disabled {
+  opacity: 0.4;
+  background: var(--bg-card-soft);
+  color: var(--text-muted);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 720px) {
+  .unlocks-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .level-header-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .level-header-right {
+    align-items: flex-start;
+  }
+}

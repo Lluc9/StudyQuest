@@ -1,0 +1,286 @@
+/* ---------- DonutProgress ---------- */
+.donut-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin: 4px auto 8px;
+}
+
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-center-top {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.donut-center-bottom {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ---------- WeeklyBarChart ---------- */
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  height: 140px;
+  padding-top: 8px;
+}
+
+.bar-chart-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.bar-chart-track {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bar-chart-fill {
+  position: relative;
+  width: 100%;
+  border-radius: 5px 5px 2px 2px;
+  background: linear-gradient(180deg, var(--accent-purple-light), var(--accent-purple));
+  min-height: 3px;
+}
+
+.bar-chart-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 4px 9px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  box-shadow: var(--shadow-card);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.bar-chart-label {
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* ---------- TrendLineChart ---------- */
+.trend-chart {
+  display: flex;
+  flex-direction: column;
+}
+
+.trend-chart-body {
+  display: flex;
+  gap: 10px;
+}
+
+.trend-chart-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+.trend-chart-axis span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.trend-chart-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trend-chart-plot {
+  position: relative;
+}
+
+.trend-chart-svg {
+  width: 100%;
+  height: 140px;
+  display: block;
+  overflow: visible;
+}
+
+.trend-chart-points {
+  position: absolute;
+  inset: 0;
+}
+
+.trend-chart-point-hit {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trend-chart-point {
+  width: 6px;
+  height: 6px;
+  border-radius: 1px;
+  background: var(--accent-cyan);
+}
+
+.trend-chart-tooltip {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 4px 9px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  box-shadow: var(--shadow-card);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.trend-chart-labels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.trend-chart-labels span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* ---------- MonthlyHoursChart (Perfil) ---------- */
+.monthly-hours-wrap {
+  display: flex;
+  gap: 10px;
+}
+
+.monthly-hours-axis {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  height: 150px;
+  padding-top: 8px;
+  flex-shrink: 0;
+}
+
+.monthly-hours-axis-track {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.monthly-hours-axis-track span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.monthly-hours-axis-spacer {
+  display: block;
+  height: 20px;
+}
+
+.monthly-hours-chart {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  height: 150px;
+  padding-top: 8px;
+}
+
+.monthly-hours-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.monthly-hours-track {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.monthly-hours-bar {
+  position: relative;
+  width: 36%;
+  min-width: 14px;
+  border-radius: 5px 5px 2px 2px;
+  background: linear-gradient(180deg, var(--accent-purple-light), var(--accent-purple));
+  min-height: 3px;
+}
+
+.monthly-hours-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 4px 9px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  box-shadow: var(--shadow-card);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.monthly-hours-month {
+  margin-top: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
