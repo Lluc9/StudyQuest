@@ -66,7 +66,6 @@ export default function HomePage() {
             <Card title={t('home.xpProgress')}>
               <DonutProgress
                 percent={user.levelProgressPercent}
-                centerTop={`${user.levelProgressPercent}%`}
                 centerBottom={`${t('home.level')} ${user.level}`}
               />
               <p className="home-xp-caption">

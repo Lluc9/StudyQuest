@@ -1,16 +1,19 @@
+import { useAnimatedNumber } from '../../utils/useAnimatedNumber'
 import './charts.css'
 
 /**
  * Donut de progreso construido con SVG (sin librería de gráficos).
- * percent: 0-100
+ * percent: 0-100. El anillo y el número central se animan de manera
+ * progresiva hacia el nuevo `percent` en lugar de saltar directamente.
  */
-export default function DonutProgress({ percent, centerTop, centerBottom }) {
+export default function DonutProgress({ percent, centerBottom }) {
   const size = 140
   const stroke = 12
   const radius = (size - stroke) / 2
   const circumference = 2 * Math.PI * radius
   const clamped = Math.max(0, Math.min(100, percent))
-  const dashOffset = circumference * (1 - clamped / 100)
+  const animatedPercent = useAnimatedNumber(clamped)
+  const dashOffset = circumference * (1 - animatedPercent / 100)
 
   return (
     <div className="donut-wrap">
@@ -43,7 +46,7 @@ export default function DonutProgress({ percent, centerTop, centerBottom }) {
         </defs>
       </svg>
       <div className="donut-center">
-        <span className="donut-center-top">{centerTop}</span>
+        <span className="donut-center-top">{Math.round(animatedPercent)}%</span>
         <span className="donut-center-bottom">{centerBottom}</span>
       </div>
     </div>

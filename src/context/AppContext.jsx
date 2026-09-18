@@ -1014,7 +1014,14 @@ function buildSelectors(state) {
   const pendingTasksCount = upcomingTasks.filter((a) => !a.completed).length
 
   const indicators = [
-    { id: 'xp', label: t('home.indicator.xpTotal'), value: user.xpTotal.toLocaleString('ca-ES'), icon: 'zap', color: 'purple' },
+    {
+      id: 'xp',
+      label: t('home.indicator.xpTotal'),
+      value: user.xpTotal.toLocaleString('ca-ES'),
+      animatedValue: user.xpTotal,
+      icon: 'zap',
+      color: 'purple',
+    },
     { id: 'level', label: t('home.indicator.level'), value: String(user.level), icon: 'star', color: 'yellow' },
     {
       id: 'tasks',
@@ -1027,6 +1034,9 @@ function buildSelectors(state) {
       id: 'hours',
       label: t('home.indicator.hoursThisWeek'),
       value: `${weeklyHoursTotal.toFixed(1)}h`,
+      animatedValue: weeklyHoursTotal,
+      decimals: 1,
+      suffix: 'h',
       icon: 'clock',
       color: 'cyan',
     },

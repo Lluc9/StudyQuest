@@ -60,6 +60,7 @@
   border-radius: 5px 5px 2px 2px;
   background: linear-gradient(180deg, var(--accent-purple-light), var(--accent-purple));
   min-height: 3px;
+  transition: height 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .bar-chart-tooltip {
