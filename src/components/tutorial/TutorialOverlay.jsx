@@ -6,6 +6,11 @@ import './tutorial.css'
 
 const CARD_WIDTH = 320
 const CARD_MARGIN = 16
+// Pausa abans d'avançar sol als passos "actius" que tenen un efecte visual
+// immediat que val la pena deixar veure (pujada d'XP en completar la
+// tasca, missió passant a "activa") — sense això el pas següent apareixia
+// massa de sobte, abans que l'usuari pogués fixar-s'hi.
+const ADVANCE_DELAY_MS = 1800
 
 // Posició de la targeta flotant: sota l'element ressaltat si hi ha prou
 // espai, si no a sobre; sempre dins dels límits de la finestra. Sense
@@ -40,10 +45,15 @@ export default function TutorialOverlay({ activeScreen, setActiveScreen }) {
     Math.min(Math.max(settings.tutorialStepIndex ?? 0, 0), TUTORIAL_STEPS.length - 1),
   )
   const [rect, setRect] = useState(null)
+  // `true` mentre s'espera `ADVANCE_DELAY_MS` abans de passar al següent
+  // pas (l'acció ja s'ha fet — es mostra un missatge de confirmació en
+  // lloc del d'espera mentre l'usuari veu l'efecte, p. ex. l'XP pujant).
+  const [isAdvancing, setIsAdvancing] = useState(false)
   // Punt de referència en entrar al pas de missions: es compara un
   // COMPTADOR (missions ja no "available"), no una missió concreta,
   // perquè la llista es pot reordenar sense que això sigui "trampa".
   const missionsResolvedAtEntryRef = useRef(0)
+  const advanceTimeoutRef = useRef(null)
 
   const step = TUTORIAL_STEPS[stepIndex]
   const isLastStep = stepIndex === TUTORIAL_STEPS.length - 1
@@ -76,6 +86,16 @@ export default function TutorialOverlay({ activeScreen, setActiveScreen }) {
   useEffect(() => {
     if (step.id === 'start-mission') {
       missionsResolvedAtEntryRef.current = missions.filter((m) => m.status !== 'available').length
+    }
+    // Cada pas nou comença sense cap avanç pendent — neteja el temporitzador
+    // de l'anterior si encara no havia saltat (p. ex. l'usuari ha saltat el
+    // tutorial mentre s'esperava).
+    setIsAdvancing(false)
+    return () => {
+      if (advanceTimeoutRef.current) {
+        clearTimeout(advanceTimeoutRef.current)
+        advanceTimeoutRef.current = null
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step.id])
@@ -118,16 +138,32 @@ export default function TutorialOverlay({ activeScreen, setActiveScreen }) {
     return () => clearTimeout(id)
   }, [step.target, activeScreen])
 
+  // Programa l'avanç al cap de `ADVANCE_DELAY_MS` (mai a l'instant) i
+  // evita duplicar el temporitzador si l'efecte es torna a disparar
+  // mentre encara s'espera (p. ex. `missions` canvia una altra vegada).
+  function scheduleAdvance() {
+    if (advanceTimeoutRef.current) return
+    setIsAdvancing(true)
+    advanceTimeoutRef.current = setTimeout(() => {
+      advanceTimeoutRef.current = null
+      handleNext()
+    }, ADVANCE_DELAY_MS)
+  }
+
   // Avanç automàtic dels passos "actius": l'usuari fa l'acció real (crear
   // una activitat, completar-la, iniciar una missió) — mai amb "Endavant".
+  // "Crear activitat" avança a l'instant (no hi ha cap efecte immediat a
+  // observar); "completar tasca" i "iniciar missió" esperen
+  // `ADVANCE_DELAY_MS` perquè l'usuari vegi l'XP pujant/la missió passant
+  // a activa abans de canviar de pas.
   useEffect(() => {
     if (step.id === 'new-activity' && totalActivities > 0) {
       handleNext()
     } else if (step.id === 'complete-task' && tasks.length > 0 && tasks[0].completed) {
-      handleNext()
+      scheduleAdvance()
     } else if (step.id === 'start-mission') {
       const resolvedNow = missions.filter((m) => m.status !== 'available').length
-      if (resolvedNow > missionsResolvedAtEntryRef.current) handleNext()
+      if (resolvedNow > missionsResolvedAtEntryRef.current) scheduleAdvance()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step.id, totalActivities, tasks, missions])
@@ -173,7 +209,9 @@ export default function TutorialOverlay({ activeScreen, setActiveScreen }) {
             <IconChevronRight width={14} height={14} />
           </button>
         ) : (
-          <span className="tutorial-waiting-hint">{t('tutorial.waitingHint')}</span>
+          <span className="tutorial-waiting-hint">
+            {isAdvancing ? t('tutorial.advancing') : t('tutorial.waitingHint')}
+          </span>
         )}
       </div>
     </>

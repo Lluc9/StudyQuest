@@ -1519,6 +1519,22 @@ l'inici mateix de l'efecte que recalcula la posició (abans de fer cap
 consulta), perquè el canvi de pas mostri sempre "sense element trobat
 encara" (targeta centrada, sense anell) en lloc d'un anell mal posicionat.
 
+### Ajust posterior: pausa abans d'avançar (passos 4 i 5)
+
+Als passos "actius" amb un efecte visual immediat que val la pena veure
+—completar la tasca (pas 4, l'XP puja) i iniciar una missió (pas 5)— el
+salt automàtic al pas següent era instantani i no deixava temps de
+fixar-s'hi: se sentia "frenètic". Afegit `ADVANCE_DELAY_MS = 1800`
+(`TutorialOverlay.jsx`): en complir-se la condició, `scheduleAdvance()`
+guarda un `setTimeout` (mai deixa que se'n solapin dos si l'efecte es
+torna a disparar mentre s'espera) i canvia el missatge de
+`t('tutorial.waitingHint')` ("Fes l'acció per continuar") a
+`t('tutorial.advancing')` ("Molt bé! Continuem...") perquè l'usuari sàpiga
+que l'acció ja s'ha registrat. El pas "Nova activitat" (3) es manté amb
+avanç instantani — crear-la no té cap efecte visual immediat que calgui
+esperar. El temporitzador es neteja en canviar de pas (`useEffect` amb
+`[step.id]`) per si l'usuari salta el tutorial mentre s'espera.
+
 ### Verificat en navegador
 
 Recorregut complet de principi a fi després de l'Onboarding: els 8 passos
