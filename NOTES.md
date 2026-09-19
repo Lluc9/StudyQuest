@@ -1574,6 +1574,24 @@ d'abans d'aquest camp (`memberSinceDateKey: null` per defecte a
 19 de setembre → "Membre des de: Set 2026"; esborrant manualment el camp
 d'un estat ja desat → torna a "Set 2025" sense trencar-se.
 
+## Coletilla "basat en el teu patró d'estudi" (Missions)
+
+Detectat per l'usuari: la secció "Recomanacions personalitzades" de
+Missions sempre mostrava l'etiqueta "basat en el teu patró d'estudi"
+(`missions.recommendationsTag`), fins i tot per a un compte acabat de
+crear amb 0 activitats i 0 missions completades — `buildRecommendations()`
+(`missionEngine.js`) només aplica regles fixes (missió disponible amb més
+XP, activa més a prop de completar-se), mai cap dada real de l'usuari,
+així que la frase era enganyosa sense cap historial. `MissionsPage.jsx`
+ara calcula `hasStudyHistory` (`profile.stats.tasksCompleted > 0` o
+alguna missió amb `status === 'completed'`) i només renderitza l'etiqueta
+si és `true` — el títol "Recomanacions personalitzades" i les targetes es
+mantenen sempre (siguin o no útils per a un usuari nou). Verificat: compte
+nou → sense etiqueta; amb una activitat completada (injectada per a la
+prova) → etiqueta visible de nou, sense error de consola ni salt de
+disseny (el `justify-content: space-between` de la capçalera ja
+funcionava bé amb un sol fill).
+
 ## Convenciones a mantener
 
 - **Texto de la UI (chrome de interfaz): sistema de traducciones**

@@ -19,6 +19,7 @@ export default function MissionsPage() {
     missionStats,
     missionRecommendations,
     subjects,
+    profile,
     startMission,
     adjustMissionProgress,
     completeMission,
@@ -26,6 +27,13 @@ export default function MissionsPage() {
   } = useApp()
   const [activeFilter, setActiveFilter] = useState('totes')
   const tutorialStepId = getTutorialStepId(settings)
+
+  // La coletilla "basat en el teu patró d'estudi" només té sentit si
+  // l'usuari ja té alguna cosa completada que pugui formar un "patró" —
+  // per a un compte nou (0 activitats i 0 missions completades), les
+  // recomanacions es basen només en regles fixes (missió disponible amb
+  // més XP), no en cap dada real seva encara.
+  const hasStudyHistory = profile.stats.tasksCompleted > 0 || missions.some((m) => m.status === 'completed')
 
   // Mentre el Tutorial inicial ressalta una missió disponible, assegura
   // que el filtre "Totes" la mostri (si l'usuari l'hagués canviat abans)
@@ -75,7 +83,9 @@ export default function MissionsPage() {
       <section className="mission-recommendations">
         <div className="mission-recommendations-header">
           <span className="mission-recommendations-title">{t('missions.recommendationsTitle')}</span>
-          <span className="mission-recommendations-tag">{t('missions.recommendationsTag')}</span>
+          {hasStudyHistory && (
+            <span className="mission-recommendations-tag">{t('missions.recommendationsTag')}</span>
+          )}
         </div>
         <div className="recommendations-grid">
           {missionRecommendations.map((rec) => (
