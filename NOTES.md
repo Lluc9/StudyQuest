@@ -1555,6 +1555,25 @@ no introduïda ni corregida per aquesta fase. Cap error de consola. Un cop
 acabat, navegades les 6 pantalles amb normalitat, sense cap rastre del
 tutorial. `localStorage` buidat en acabar les proves.
 
+## "Membre des de" real a Perfil
+
+`profile.memberSince` (Perfil → capçalera) mostrava sempre el valor fix
+`seedUser.memberSince` ('Set 2025', `data/seedData.js`) — últim rastre
+d'una data de mock, detectat per l'usuari revisant Perfil després del
+Tutorial inicial. Igual que amb `getTodayKey()` (veure "Sincronitzar el
+dia d'avui amb la data real"), calia una data real: nou camp
+`settings.memberSinceDateKey`, fixat a `getTodayKey()` dins
+`buildFreshState()` (és a dir, el dia real en què l'usuari acaba
+l'Onboarding). `buildSelectors` el formata amb la nova
+`formatMonthYearCa(dateKey)` (`calendarUtils.js`, p. ex. "Set 2026") i
+només cau al valor fix de `seedUser.memberSince` com a reserva per a
+`buildInitialState()` (dashboard de demo) o un `settings` persistit
+d'abans d'aquest camp (`memberSinceDateKey: null` per defecte a
+`buildInitialSettings()` — mateix criteri de migració que
+`onboardingComplete`/`tutorialComplete`). Verificat: Onboarding complet un
+19 de setembre → "Membre des de: Set 2026"; esborrant manualment el camp
+d'un estat ja desat → torna a "Set 2025" sense trencar-se.
+
 ## Convenciones a mantener
 
 - **Texto de la UI (chrome de interfaz): sistema de traducciones**

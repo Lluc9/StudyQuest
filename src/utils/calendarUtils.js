@@ -101,6 +101,15 @@ export function getMonthLabel(year, month) {
   return `${MONTH_LABELS[month].toUpperCase()} ${year}`
 }
 
+/** Etiqueta "Mes Any" en català (p. ex. "Set 2026"), per a "Membre des de"
+ * a Perfil — mateix format que tenia el valor fix de `data/seedData.js`,
+ * ara calculat a partir d'un `dateKey` real (`settings.memberSinceDateKey`,
+ * desat en completar l'Onboarding). */
+export function formatMonthYearCa(dateKey) {
+  const [y, m] = dateKey.split('-').map(Number)
+  return `${MONTH_LABELS[m - 1].slice(0, 3)} ${y}`
+}
+
 /**
  * Devuelve un array de longitud múltiple de 7 representando la cuadrícula
  * del mes (semanas empezando en dilluns). Las celdas antes del día 1 son

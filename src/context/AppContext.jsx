@@ -21,6 +21,7 @@ import {
   getTodayKey,
   getWeekdayFullLabelCa,
   getShortDateLabelCa,
+  formatMonthYearCa,
 } from '../utils/calendarUtils'
 import { computeLevelInfo, getLevelName } from '../utils/levelSystem'
 import {
@@ -88,6 +89,12 @@ function buildInitialSettings() {
     // mateix pas si es recarrega la pàgina a mitja seqüència.
     tutorialComplete: true,
     tutorialStepIndex: 0,
+    // `null` per defecte (migració): una sessió de proves anterior a
+    // aquest camp no té cap data real coneguda — `buildSelectors` hi cau
+    // de nou a `seedUser.memberSince` en aquest cas. Només
+    // `buildFreshState()` (Onboarding real) el fixa a la data real
+    // d'avui.
+    memberSinceDateKey: null,
     avatarDataUrl: null,
     sessionActive: true,
     notifications: {
@@ -236,6 +243,9 @@ function buildFreshState(state, { username, language }) {
       // per defecte de `buildInitialSettings()` (pensat per a migració).
       tutorialComplete: false,
       tutorialStepIndex: 0,
+      // Data real de creació del compte — mai un valor fix de mock (veure
+      // "Pantalla Perfil" a NOTES.md). Es formata a `buildSelectors`.
+      memberSinceDateKey: getTodayKey(),
     },
   }
 }
@@ -1118,7 +1128,7 @@ function buildSelectors(state) {
       achievementsTotal: achievementTemplates.length,
       maxStreak: progress.maxStreak ?? progress.streakDays,
     },
-    memberSince: seedUser.memberSince,
+    memberSince: settings.memberSinceDateKey ? formatMonthYearCa(settings.memberSinceDateKey) : seedUser.memberSince,
     monthlyHours: computeMonthlyStudyHours(activities),
     xpTrend: computeXpTrend(eventLog, progress.xpTotal),
     subjectDistribution: computeSubjectDistribution(activities, subjectsById),

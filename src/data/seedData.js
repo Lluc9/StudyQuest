@@ -5,9 +5,10 @@
 
 export const user = {
   name: 'Usuari',
-  // Encara no hi ha onboarding real que registri quan es va crear el
-  // compte, així que es manté com a valor estàtic (demanat explícitament
-  // per l'usuari) fins que aquesta pantalla existeixi.
+  // Valor de reserva NOMÉS per a `buildInitialState()` (dashboard de demo)
+  // i per a un `settings` persistit d'abans que existís
+  // `memberSinceDateKey` (veure `AppContext.jsx`, `buildSelectors`). Un
+  // usuari real sempre té la data real de quan va completar l'Onboarding.
   memberSince: 'Set 2025',
 }
 
