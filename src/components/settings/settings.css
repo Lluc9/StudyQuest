@@ -161,6 +161,8 @@
 }
 
 .account-avatar {
+  position: relative;
+  z-index: 1;
   width: 56px;
   height: 56px;
   border-radius: var(--radius-lg);
@@ -173,6 +175,7 @@
 
 .account-level-badge {
   position: absolute;
+  z-index: 2;
   bottom: -5px;
   left: -5px;
   width: 22px;

@@ -4,10 +4,16 @@ import { IconUser, IconFlame, IconZap, IconCalendar } from '../common/Icons'
 import { useApp } from '../../context/AppContext'
 import './profile.css'
 
+// Id del desbloqueig "Marc d'Avatar: Flama" a `data/rewardsCatalog.js` —
+// un cop comprat (`ownedUnlockIds`), s'aplica sol, sense cap "equipar"
+// separat (encara és l'únic marc implementat).
+const AVATAR_FLAME_UNLOCK_ID = 'u2'
+
 // Colors dels indicadors de `ProfileStats` — purament de presentació (no
 // és una dada de l'estat), per això es defineix aquí en lloc d'a AppContext.
 export default function ProfileHeader() {
-  const { user, streak, profile, t } = useApp()
+  const { user, streak, profile, unlocks, t } = useApp()
+  const hasAvatarFlame = unlocks.find((u) => u.id === AVATAR_FLAME_UNLOCK_ID)?.owned ?? false
 
   const stats = [
     { id: 'tasksCompleted', label: t('profile.stat.tasksCompleted'), color: 'green', value: String(profile.stats.tasksCompleted) },
@@ -26,6 +32,7 @@ export default function ProfileHeader() {
       <div className="profile-header-top">
         <div className="profile-header-identity">
           <div className="profile-avatar-wrap">
+            {hasAvatarFlame && <div className="avatar-flame-ring" />}
             <div className="profile-avatar">
               <IconUser width={26} height={26} />
             </div>

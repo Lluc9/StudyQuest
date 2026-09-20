@@ -251,6 +251,37 @@
   color: var(--accent-purple-light);
 }
 
+/* ---------- Marc d'avatar animat: Flama (desbloqueig comprable "u2" a
+   Recompenses) ----------
+   Anell lluminós i giratori just darrere l'avatar (el contenidor de
+   l'avatar necessita `position: relative` + `z-index` perquè quedi per
+   sobre — veure `.profile-avatar`/`.account-avatar`). Compartit entre
+   Perfil i Configuració → Compte: és el mateix avatar en dos llocs. */
+.avatar-flame-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: var(--radius-lg);
+  background: conic-gradient(from 0deg, var(--accent-orange), var(--accent-red), var(--accent-yellow), var(--accent-orange));
+  filter: blur(3px);
+  z-index: 0;
+  animation: avatar-flame-spin 3s linear infinite, avatar-flame-pulse 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes avatar-flame-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes avatar-flame-pulse {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* ---------- Toast ---------- */
 .toast-wrap {
   position: fixed;

@@ -734,11 +734,48 @@ automàtics (funcions: Mode Concentració+, Estadístiques Avançades, Mode
 Arena — "les funcions importants no haurien de requerir compra", tal com
 deia l'encàrrec) i 5 comprables (cosmètics/avatar/títol/insígnia).
 
-No s'ha implementat l'aplicació visual real de cap desbloqueig (canviar
-el tema, afegir el marc a l'avatar...) — l'encàrrec ho deixava
-explícitament opcional per a aquesta iteració ("no es necessario
-implementar todavía toda su aplicación visual"). `UnlockCard` sí reflecteix
-correctament els tres estats (bloquejat / comprable / obtingut).
+Inicialment no es va implementar l'aplicació visual real de cap
+desbloqueig (canviar el tema, afegir el marc a l'avatar...) — l'encàrrec
+original ho deixava explícitament opcional per a aquella iteració. Més
+endavant, a petició de l'usuari (que va notar que comprar-los no feia
+res), es van connectar els dos primers de debò — veure "Desbloquejos amb
+efecte real" més avall. Els altres 6 (Mode Concentració+, Estadístiques
+Avançades, Títol: Gran Mestre, Marc d'Avatar: Cristall, Mode Arena,
+Llegenda de l'Acadèmia) continuen sense cap efecte més enllà del check
+verd — es poden connectar amb el mateix patró quan calgui. `UnlockCard` ja
+reflecteix correctament els tres estats (bloquejat / comprable / obtingut)
+per als 8.
+
+### Desbloquejos amb efecte real: Tema Fosc Pro i Marc d'Avatar: Flama
+
+Els dos primers desbloquejos del catàleg (`u1`/`u2`) ara fan exactament el
+que diu la seva descripció:
+- **Tema Fosc Pro** (`u1`): nova paleta `:root[data-theme='fosc-pro']` a
+  `variables.css` — mateixos NOMS de token que la resta de temes (fons/vora
+  més violetes, més contrast), cap component ha calgut tocar-lo. Només
+  apareix com a 4a opció a Configuració → Aparença
+  (`AppearanceSettings.jsx`) quan `unlocks.find(u => u.id === 'u1').owned`
+  és cert — abans de comprar-lo, l'usuari continua veient només
+  Fosc/Clar/Sistema, exactament com passava abans amb aquest desbloqueig.
+  `resolveTheme()` (`AppContext.jsx`) no ha calgut tocar-lo: `'fosc-pro'`
+  ja hi passava de llarg (no és `'sistema'`).
+- **Marc d'Avatar: Flama** (`u2`): nou `.avatar-flame-ring` a `common.css`
+  (anell lluminós i giratori, `conic-gradient` + dues animacions) darrere
+  l'avatar — reutilitzat tant a Perfil (`ProfileHeader.jsx`) com a
+  Configuració → Compte (`AccountSettings.jsx`), perquè és el mateix
+  avatar en dos llocs. S'aplica sol en comprar-lo (`unlocks.find(u => u.id
+  === 'u2').owned`), sense cap sistema d'"equipar" — encara és l'únic marc
+  implementat (el de Cristall, `u6`, seguiria el mateix patró el dia que
+  es connecti). Respecta el toggle "Animacions" de Configuració →
+  Aparença (la regla global `[data-animations='off']` ja neutralitza
+  qualsevol animació nova sense haver-la d'excloure a mà).
+
+Verificat en navegador: usuari nou (sense cap desbloqueig) → només 3
+opcions de tema, avatar sense marc. Comprats tots dos (XP injectat per a
+la prova) → "Fosc Pro" apareix i es pot seleccionar (paleta aplicada
+correctament, `data-theme="fosc-pro"`), anell de flama visible a Perfil i
+a Compte. Recarregada la pàgina amb el tema ja seleccionat → es manté.
+Cap error de consola.
 
 ### Assoliments (`src/data/rewardsCatalog.js` — `achievementTemplates`)
 

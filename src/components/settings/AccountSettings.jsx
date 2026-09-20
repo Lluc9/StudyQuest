@@ -6,8 +6,13 @@ import { useApp } from '../../context/AppContext'
 import { fileToResizedDataUrl, isFileTooBig } from '../../utils/imageUtils'
 import './settings.css'
 
+// Mateix desbloqueig que aplica el marc a Perfil (`ProfileHeader.jsx`) —
+// és el mateix avatar, només es mostra en un altre lloc.
+const AVATAR_FLAME_UNLOCK_ID = 'u2'
+
 export default function AccountSettings() {
-  const { user, settings, t, saveAccountInfo, setAvatar, setSessionActive, restartApp } = useApp()
+  const { user, settings, unlocks, t, saveAccountInfo, setAvatar, setSessionActive, restartApp } = useApp()
+  const hasAvatarFlame = unlocks.find((u) => u.id === AVATAR_FLAME_UNLOCK_ID)?.owned ?? false
   const [username, setUsername] = useState(settings.username)
   const [language, setLanguage] = useState(settings.language)
   const [justSaved, setJustSaved] = useState(false)
@@ -57,6 +62,7 @@ export default function AccountSettings() {
       <Card className="account-profile-card">
         <div className="account-profile-row">
           <div className="account-avatar-wrap">
+            {hasAvatarFlame && <div className="avatar-flame-ring" />}
             <div className="account-avatar">
               {user.avatarDataUrl ? (
                 <img src={user.avatarDataUrl} alt="" className="account-avatar-img" />
