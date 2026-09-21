@@ -117,7 +117,12 @@ function AppShell({ activeScreen, setActiveScreen, activeSettingsSection, setAct
           s'hagi acabat/saltat — per sobre de Sidebar + main, mai una
           pantalla a part (veure NOTES.md, "Tutorial inicial"). */}
       {settings.onboardingComplete && !settings.tutorialComplete && (
-        <TutorialOverlay activeScreen={activeScreen} setActiveScreen={setActiveScreen} />
+        <TutorialOverlay
+          activeScreen={activeScreen}
+          setActiveScreen={setActiveScreen}
+          activeSettingsSection={activeSettingsSection}
+          setActiveSettingsSection={setActiveSettingsSection}
+        />
       )}
     </div>
   )

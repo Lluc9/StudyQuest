@@ -33,7 +33,7 @@ export default function AppearanceSettings() {
         <SegmentedControl options={themeOptions} value={theme} onChange={(v) => updateAppearance({ theme: v })} />
       </Card>
 
-      <Card title={t('settings.appearance.accentColor')}>
+      <Card title={t('settings.appearance.accentColor')} data-tutorial="tutorial-appearance-colors">
         <div className="accent-color-grid">
           {accentColors.map((c) => (
             <button

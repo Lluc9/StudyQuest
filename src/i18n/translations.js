@@ -310,6 +310,9 @@ const ca = {
   'tutorial.step.profileStats.title': 'El teu progrés',
   'tutorial.step.profileStats.body':
     "Aquí tens les teves estadístiques i, una mica més avall, l'historial d'activitat recent.",
+  'tutorial.step.appearance.title': 'Fes-la teva',
+  'tutorial.step.appearance.body':
+    "Si el gris et resulta fred, canvia el color d'accent (o el tema) des d'aquí quan vulguis.",
 }
 
 const es = {
@@ -603,6 +606,9 @@ const es = {
   'tutorial.step.profileStats.title': 'Tu progreso',
   'tutorial.step.profileStats.body':
     'Aquí tienes tus estadísticas y, un poco más abajo, el historial de actividad reciente.',
+  'tutorial.step.appearance.title': 'Hazla tuya',
+  'tutorial.step.appearance.body':
+    'Si el gris se te hace frío, cambia el color de acento (o el tema) desde aquí cuando quieras.',
 }
 
 const en = {
@@ -893,6 +899,8 @@ const en = {
     "With available XP you can buy upgrades and content. You don't have enough yet — you'll get there!",
   'tutorial.step.profileStats.title': 'Your progress',
   'tutorial.step.profileStats.body': "Here are your stats and, a bit further down, your recent activity history.",
+  'tutorial.step.appearance.title': 'Make it yours',
+  'tutorial.step.appearance.body': 'If the grey feels dull, change the accent color (or the theme) here whenever you like.',
 }
 
 export const translations = { ca, es, en }

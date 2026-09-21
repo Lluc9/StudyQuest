@@ -48,7 +48,32 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 10px;
   margin-bottom: 10px;
+}
+
+.tutorial-card-top-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Indica en quina pantalla es troba el pas actual — abans un usuari de
+   prova va buscar el botó "Nova activitat" a Inici perquè el pas no
+   deixava clar que calia anar a Calendari. */
+.tutorial-screen-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 3px 8px;
+  border-radius: var(--radius-full, 999px);
+  background: var(--bg-card-soft);
+  border: 1px solid var(--border-card);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--accent-purple-light);
 }
 
 .tutorial-progress {

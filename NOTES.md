@@ -1460,11 +1460,11 @@ buidat en acabar.
 ## Tutorial inicial
 
 **Objetivo** (`ENCARREC_Tutorial_Inicial.md`): recorregut guiat "spotlight"
-de 8 passos per a l'usuari nou, just després de l'Onboarding — Inici (2),
-Calendari (1), tornada a Inici (1), Missions (1), Recompenses (2) i Perfil
-(1). Configuració queda fora. Als passos clau l'usuari ha de fer l'acció
-real (crear una tasca, completar-la, iniciar una missió) per avançar, no
-només llegir.
+de 9 passos per a l'usuari nou, just després de l'Onboarding — Inici (2),
+Calendari (1), tornada a Inici (1), Missions (1), Recompenses (2), Perfil
+(1) i Configuració (1, afegit més endavant — veure "Pas 9" més avall). Als
+passos clau l'usuari ha de fer l'acció real (crear una tasca, completar-
+la, iniciar una missió) per avançar, no només llegir.
 
 ### 1. Estat i activació
 
@@ -1509,7 +1509,7 @@ tal com demanava l'encàrrec) i `SET_TUTORIAL_STEP`.
 
 ### 3. Passos "actius": l'usuari fa l'acció real, no hi ha "Endavant"
 
-Font única dels 8 passos: `src/components/tutorial/tutorialSteps.js`
+Font única dels 9 passos: `src/components/tutorial/tutorialSteps.js`
 (`TUTORIAL_STEPS` + `getTutorialStepId(settings)`, usada també per
 pantalles que necessiten reaccionar-hi — veure més avall). Cada pas actiu
 es detecta comparant l'estat actual (`activities`/`tasks`/`missions`, tots
@@ -1574,23 +1574,66 @@ esperar. El temporitzador es neteja en canviar de pas (`useEffect` amb
 
 ### Verificat en navegador
 
-Recorregut complet de principi a fi després de l'Onboarding: els 8 passos
+Recorregut complet de principi a fi després de l'Onboarding: els 9 passos
 en ordre correcte, canvis de pantalla automàtics (Inici→Calendari→Inici→
-Missions→Recompenses→Perfil), pestanya "Nivells"/"Desbloquejos" oberta
-sola als passos 6/7. Creada una activitat real al pas 3 (el modal real es
-va obrir per sobre sense conflictes de z-index) → avanç automàtic.
-Completada la tasca al pas 4 → avanç automàtic (XP/nivell actualitzats
-amb normalitat, mateix comportament que sense tutorial). Iniciada una
-missió al pas 5 → avanç automàtic. "Saltar tutorial" des del pas 1 →
-`tutorialComplete: true`, overlay desapareix, app totalment interactiva.
-Recàrrega de la pàgina a mig recorregut (pas 6 desat manualment a
-`localStorage`) → reprèn exactament al mateix pas, pantalla i pestanya
-correctes. Verificat en anglès (canvi d'idioma a mig tutorial): textos,
-botons i indicador de progrés traduïts correctament — els noms de mes/dia
-del Calendari es mantenen en català, limitació ja coneguda i documentada,
-no introduïda ni corregida per aquesta fase. Cap error de consola. Un cop
-acabat, navegades les 6 pantalles amb normalitat, sense cap rastre del
-tutorial. `localStorage` buidat en acabar les proves.
+Missions→Recompenses→Perfil→Configuració), pestanya "Nivells"/
+"Desbloquejos" oberta sola als passos 6/7. Creada una activitat real al
+pas 3 (el modal real es va obrir per sobre sense conflictes de z-index) →
+avanç automàtic. Completada la tasca al pas 4 → avanç automàtic (XP/nivell
+actualitzats amb normalitat, mateix comportament que sense tutorial).
+Iniciada una missió al pas 5 → avanç automàtic. "Saltar tutorial" des del
+pas 1 → `tutorialComplete: true`, overlay desapareix, app totalment
+interactiva. Recàrrega de la pàgina a mig recorregut (pas 6 desat
+manualment a `localStorage`) → reprèn exactament al mateix pas, pantalla i
+pestanya correctes. Verificat en anglès (canvi d'idioma a mig tutorial):
+textos, botons i indicador de progrés traduïts correctament — els noms de
+mes/dia del Calendari es mantenen en català, limitació ja coneguda i
+documentada, no introduïda ni corregida per aquesta fase. Cap error de
+consola. Un cop acabat, navegades les 6 pantalles amb normalitat, sense
+cap rastre del tutorial. `localStorage` buidat en acabar les proves.
+
+### Pas 9 i indicador de pantalla (retocs a petició d'un usuari de proves)
+
+Un usuari de proves va dir que li va costar trobar el botó "Nova
+activitat" perquè pensava que estava a Inici (el pas 3 hi porta, però la
+targeta no ho deixava prou clar) i que el color de l'app li resultava
+"sec i poc motivador". Dos retocs, sense tocar la lògica dels passos
+existents:
+
+- **Indicador de pantalla a cada pas**: nova insígnia
+  (`.tutorial-screen-badge`, `TutorialOverlay.jsx`) a la part superior de
+  la targeta, amb la mateixa icona que `Sidebar.jsx` fa servir per a la
+  pantalla del pas (`SCREEN_ICONS`, un mapa local id→icona) i el mateix
+  text que la barra lateral (`t('sidebar.' + step.screen)`, reutilitzant
+  les claus `sidebar.*` ja existents — no calen claus noves). Es mostra a
+  TOTS els passos, no només als que canvien de pantalla, perquè l'usuari
+  sempre sàpiga on és sense haver-ho de deduir.
+- **Pas nou "Fes-la teva" (Configuració → Aparença)**: últim pas del
+  recorregut, `type: 'explain'`. Ressalta la targeta de color d'accent
+  (`data-tutorial="tutorial-appearance-colors"`, afegit directament a la
+  `Card` d'`AppearanceSettings.jsx`) i convida a canviar el color o el
+  tema quan vulgui — no obliga a canviar res, només l'hi assenyala (a
+  diferència dels passos "actius", que sí que esperen una acció real).
+  Camp nou opcional als passos, `section` (`tutorialSteps.js`), amb el
+  mateix paper que `screen` però per al segon nivell de navegació
+  (`SettingsSidebar.jsx`): quan el pas el porta, `TutorialOverlay` crida
+  `setActiveSettingsSection` (ara rebuda com a prop des d'`App.jsx`, igual
+  que `setActiveScreen`) a més de `setActiveScreen`. Cap canvi a
+  `RewardsPage.jsx`/`MissionsPage.jsx` — aquest mecanisme és independent
+  del que ja forçava pestanya/filtre en aquelles pantalles (secció 4 més
+  amunt), reutilitza el mateix patró general però a un nivell diferent.
+
+Verificat en navegador: recorregut sencer amb els 9 passos — la insígnia
+de pantalla mostra el nom i la icona correctes a cada pas (Inici,
+Calendari, Missions, Recompenses, Perfil, Configuració). Al pas 9,
+`activeScreen` canvia a `configuracio` i `activeSettingsSection` a
+`aparenca` automàticament (encara que l'usuari hagués deixat Configuració
+en una altra pestanya abans), l'anell ressalta la targeta de color
+d'accent, "Acabar" tanca el tutorial amb normalitat. Provat també saltant
+el tutorial abans d'arribar-hi (pas 1) i recarregant la pàgina amb el pas
+9 ja desat a `localStorage` → reprèn directament a Configuració→Aparença
+amb l'anell ben posicionat. Cap error de consola. `localStorage` buidat en
+acabar les proves.
 
 ## "Membre des de" real a Perfil
 

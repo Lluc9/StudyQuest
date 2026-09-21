@@ -1,11 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { IconX, IconChevronRight } from '../common/Icons'
+import { IconX, IconChevronRight, IconGrid, IconCalendar, IconTarget, IconGift, IconUser, IconSettings } from '../common/Icons'
 import { useApp } from '../../context/AppContext'
 import { TUTORIAL_STEPS } from './tutorialSteps'
 import './tutorial.css'
 
 const CARD_WIDTH = 320
 const CARD_MARGIN = 16
+
+// Mateixa icona que `Sidebar.jsx` fa servir per a cada pantalla — permet
+// que la targeta del tutorial digui "on ets" d'un cop d'ull (un usuari de
+// prova va confondre el botó "Nova activitat" de Calendari amb un botó
+// d'Inici perquè el pas no deixava clar el canvi de pantalla).
+const SCREEN_ICONS = {
+  inici: IconGrid,
+  calendari: IconCalendar,
+  missions: IconTarget,
+  recompenses: IconGift,
+  perfil: IconUser,
+  configuracio: IconSettings,
+}
 // Pausa abans d'avançar sol als passos "actius" que tenen un efecte visual
 // immediat que val la pena deixar veure (pujada d'XP en completar la
 // tasca, missió passant a "activa") — sense això el pas següent apareixia
@@ -29,15 +42,21 @@ function computeCardPosition(rect) {
 }
 
 /**
- * Recorregut "spotlight" del Tutorial inicial (8 passos — veure
+ * Recorregut "spotlight" del Tutorial inicial (9 passos — veure
  * `tutorialSteps.js` i NOTES.md). Viu dins d'`AppShell` (App.jsx), per
  * sobre de `Sidebar` + `main`: l'usuari veu l'app real de fons, mai una
  * pantalla a part (a diferència de l'Onboarding). Localitza l'element a
  * ressaltar de cada pas per l'atribut `data-tutorial` (mai per classes
  * CSS, que poden canviar) i pot canviar de pantalla ell mateix
- * reutilitzant `setActiveScreen`.
+ * reutilitzant `setActiveScreen` (i, quan el pas ho demana, la secció de
+ * Configuració amb `setActiveSettingsSection`).
  */
-export default function TutorialOverlay({ activeScreen, setActiveScreen }) {
+export default function TutorialOverlay({
+  activeScreen,
+  setActiveScreen,
+  activeSettingsSection,
+  setActiveSettingsSection,
+}) {
   const { t, settings, activities, tasks, missions, completeTutorial, skipTutorial, setTutorialStep } = useApp()
   // Lazy init: si l'usuari recarrega a mitja seqüència, reprèn pel mateix
   // pas desat a `settings.tutorialStepIndex` (punt 5 de l'encàrrec).
@@ -77,11 +96,14 @@ export default function TutorialOverlay({ activeScreen, setActiveScreen }) {
 
   // El tutorial canvia de pantalla ell mateix quan el pas ho requereix
   // (p. ex. Calendari pel pas 3) — reutilitza la mateixa `setActiveScreen`
-  // que ja fa servir el Sidebar.
+  // que ja fa servir el Sidebar. Si el pas també indica `section` (només
+  // el pas de Configuració), força igualment la pestanya de la barra
+  // lateral de Configuració abans que l'element a ressaltar existeixi.
   useEffect(() => {
     if (activeScreen !== step.screen) setActiveScreen(step.screen)
+    if (step.section && activeSettingsSection !== step.section) setActiveSettingsSection(step.section)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [step.screen])
+  }, [step.screen, step.section])
 
   useEffect(() => {
     if (step.id === 'start-mission') {
@@ -169,6 +191,7 @@ export default function TutorialOverlay({ activeScreen, setActiveScreen }) {
   }, [step.id, totalActivities, tasks, missions])
 
   const cardPosition = computeCardPosition(rect)
+  const ScreenIcon = SCREEN_ICONS[step.screen]
 
   return (
     <>
@@ -192,9 +215,15 @@ export default function TutorialOverlay({ activeScreen, setActiveScreen }) {
 
       <div className="tutorial-card" style={{ top: cardPosition.top, left: cardPosition.left }}>
         <div className="tutorial-card-top">
-          <span className="tutorial-progress">
-            {t('tutorial.progress', { n: stepIndex + 1, total: TUTORIAL_STEPS.length })}
-          </span>
+          <div className="tutorial-card-top-info">
+            <span className="tutorial-screen-badge">
+              <ScreenIcon width={11} height={11} />
+              {t(`sidebar.${step.screen}`)}
+            </span>
+            <span className="tutorial-progress">
+              {t('tutorial.progress', { n: stepIndex + 1, total: TUTORIAL_STEPS.length })}
+            </span>
+          </div>
           <button type="button" className="tutorial-skip-btn" onClick={skipTutorial}>
             <IconX width={12} height={12} />
             {t('tutorial.skip')}

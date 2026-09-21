@@ -1,5 +1,5 @@
 // Recorregut del Tutorial inicial (veure NOTES.md, "Tutorial inicial") —
-// font única d'aquests 8 passos, compartida entre `TutorialOverlay.jsx`
+// font única d'aquests 9 passos, compartida entre `TutorialOverlay.jsx`
 // (que els recorre) i qualsevol pantalla que necessiti saber "estic sent
 // ressaltada ara mateix?" (MissionsPage/RewardsPage, per obrir la pestanya
 // o el filtre correcte abans que el pas es faci visible).
@@ -8,6 +8,9 @@
 // ressaltar — mai una classe CSS, que podria canviar. `type: 'active'`
 // vol dir que el pas avança sol quan `TutorialOverlay` detecta l'acció
 // real (mai amb el botó "Endavant", que en aquests passos no es mostra).
+// `section` (opcional) és la secció de Configuració a forçar quan
+// `screen` és `'configuracio'` (id de `SettingsSidebar.jsx`) — mateix
+// mecanisme que `screen`, però per al segon nivell de navegació.
 export const TUTORIAL_STEPS = [
   {
     id: 'today-goal',
@@ -72,6 +75,15 @@ export const TUTORIAL_STEPS = [
     type: 'explain',
     titleKey: 'tutorial.step.profileStats.title',
     bodyKey: 'tutorial.step.profileStats.body',
+  },
+  {
+    id: 'appearance',
+    screen: 'configuracio',
+    section: 'aparenca',
+    target: 'tutorial-appearance-colors',
+    type: 'explain',
+    titleKey: 'tutorial.step.appearance.title',
+    bodyKey: 'tutorial.step.appearance.body',
   },
 ]
 
