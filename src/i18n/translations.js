@@ -232,6 +232,7 @@ const ca = {
   'rewards.subtitle': 'Acumula XP, puja de nivell i desbloqueja contingut exclusiu',
   'rewards.tabs.levels': 'Nivells',
   'rewards.tabs.unlocks': 'Desbloquejos',
+  'rewards.tabs.character': 'Personatge',
   'rewards.tabs.achievements': 'Assoliments',
   'rewards.current': 'Actual',
   'rewards.currentLevel': 'Nivell actual',
@@ -242,10 +243,25 @@ const ca = {
   'rewards.buy': 'Comprar',
   'unlockCategory.tots': 'Tots',
   'unlockCategory.cosmetic': 'Cosmètic',
-  'unlockCategory.avatar': 'Avatar',
   'unlockCategory.funcio': 'Funció',
   'unlockCategory.titol': 'Titol',
   'unlockCategory.insignia': 'Insignia',
+
+  // Personatge — només el "cromo" de la interfície. Els noms i les
+  // descripcions de les peces viuen al catàleg (`data/characterCatalog.js`)
+  // sense traduir, igual que els desbloquejos i els assoliments.
+  'character.slot.armadura': 'Armadura',
+  'character.slot.casc': 'Casc',
+  'character.slot.arma': 'Arma',
+  'character.slot.fons': 'Fons',
+  'character.slot.marc': "Marc d'avatar",
+  'character.buy': 'Comprar',
+  'character.equip': 'Equipar',
+  'character.equipped': 'Equipat',
+  'character.needsLevel': 'Nivell {{n}}',
+  'character.levelShort': 'Niv.',
+  'character.piecesLabel': 'Peces aconseguides',
+  'character.availableXp': 'XP disponible',
 
   'profile.hoursTitle': "Hores d'estudi — últims 6 mesos",
   'profile.xpTrendTitle': 'Tendència XP — últims 6 mesos',
@@ -307,12 +323,15 @@ const ca = {
   'tutorial.step.unlockCard.title': 'Desbloquejos',
   'tutorial.step.unlockCard.body':
     'Amb el XP disponible pots comprar millores i contingut. Encara no en tens prou — ja hi arribaràs!',
+  'tutorial.step.character.title': 'El teu personatge',
+  'tutorial.step.character.body':
+    "Aquí gastes l'XP que guanyes: armadura, casc, arma, fons i marc. Tot el que compres es veu a l'instant sobre el personatge.",
   'tutorial.step.profileStats.title': 'El teu progrés',
   'tutorial.step.profileStats.body':
     "Aquí tens les teves estadístiques i, una mica més avall, l'historial d'activitat recent.",
   'tutorial.step.appearance.title': 'Fes-la teva',
   'tutorial.step.appearance.body':
-    "Si el gris et resulta fred, canvia el color d'accent (o el tema) des d'aquí quan vulguis.",
+    "Tria el color d'accent i el tema que més t'agradin. Pots canviar-ho sempre que vulguis.",
 }
 
 const es = {
@@ -528,6 +547,7 @@ const es = {
   'rewards.subtitle': 'Acumula XP, sube de nivel y desbloquea contenido exclusivo',
   'rewards.tabs.levels': 'Niveles',
   'rewards.tabs.unlocks': 'Desbloqueos',
+  'rewards.tabs.character': 'Personaje',
   'rewards.tabs.achievements': 'Logros',
   'rewards.current': 'Actual',
   'rewards.currentLevel': 'Nivel actual',
@@ -538,10 +558,22 @@ const es = {
   'rewards.buy': 'Comprar',
   'unlockCategory.tots': 'Todos',
   'unlockCategory.cosmetic': 'Cosmético',
-  'unlockCategory.avatar': 'Avatar',
   'unlockCategory.funcio': 'Función',
   'unlockCategory.titol': 'Título',
   'unlockCategory.insignia': 'Insignia',
+
+  'character.slot.armadura': 'Armadura',
+  'character.slot.casc': 'Casco',
+  'character.slot.arma': 'Arma',
+  'character.slot.fons': 'Fondo',
+  'character.slot.marc': 'Marco de avatar',
+  'character.buy': 'Comprar',
+  'character.equip': 'Equipar',
+  'character.equipped': 'Equipado',
+  'character.needsLevel': 'Nivel {{n}}',
+  'character.levelShort': 'Niv.',
+  'character.piecesLabel': 'Piezas conseguidas',
+  'character.availableXp': 'XP disponible',
 
   'profile.hoursTitle': 'Horas de estudio — últimos 6 meses',
   'profile.xpTrendTitle': 'Tendencia XP — últimos 6 meses',
@@ -603,12 +635,15 @@ const es = {
   'tutorial.step.unlockCard.title': 'Desbloqueos',
   'tutorial.step.unlockCard.body':
     'Con el XP disponible puedes comprar mejoras y contenido. Todavía no tienes suficiente — ¡ya llegarás!',
+  'tutorial.step.character.title': 'Tu personaje',
+  'tutorial.step.character.body':
+    'Aquí gastas el XP que ganas: armadura, casco, arma, fondo y marco. Todo lo que compras se ve al instante sobre el personaje.',
   'tutorial.step.profileStats.title': 'Tu progreso',
   'tutorial.step.profileStats.body':
     'Aquí tienes tus estadísticas y, un poco más abajo, el historial de actividad reciente.',
   'tutorial.step.appearance.title': 'Hazla tuya',
   'tutorial.step.appearance.body':
-    'Si el gris se te hace frío, cambia el color de acento (o el tema) desde aquí cuando quieras.',
+    'Elige el color de acento y el tema que más te gusten. Puedes cambiarlo siempre que quieras.',
 }
 
 const en = {
@@ -822,6 +857,7 @@ const en = {
   'rewards.subtitle': 'Earn XP, level up and unlock exclusive content',
   'rewards.tabs.levels': 'Levels',
   'rewards.tabs.unlocks': 'Unlocks',
+  'rewards.tabs.character': 'Character',
   'rewards.tabs.achievements': 'Achievements',
   'rewards.current': 'Current',
   'rewards.currentLevel': 'Current level',
@@ -832,10 +868,22 @@ const en = {
   'rewards.buy': 'Buy',
   'unlockCategory.tots': 'All',
   'unlockCategory.cosmetic': 'Cosmetic',
-  'unlockCategory.avatar': 'Avatar',
   'unlockCategory.funcio': 'Feature',
   'unlockCategory.titol': 'Title',
   'unlockCategory.insignia': 'Badge',
+
+  'character.slot.armadura': 'Armour',
+  'character.slot.casc': 'Helmet',
+  'character.slot.arma': 'Weapon',
+  'character.slot.fons': 'Background',
+  'character.slot.marc': 'Avatar frame',
+  'character.buy': 'Buy',
+  'character.equip': 'Equip',
+  'character.equipped': 'Equipped',
+  'character.needsLevel': 'Level {{n}}',
+  'character.levelShort': 'Lv.',
+  'character.piecesLabel': 'Pieces earned',
+  'character.availableXp': 'Available XP',
 
   'profile.hoursTitle': 'Study hours — last 6 months',
   'profile.xpTrendTitle': 'XP trend — last 6 months',
@@ -897,10 +945,13 @@ const en = {
   'tutorial.step.unlockCard.title': 'Unlocks',
   'tutorial.step.unlockCard.body':
     "With available XP you can buy upgrades and content. You don't have enough yet — you'll get there!",
+  'tutorial.step.character.title': 'Your character',
+  'tutorial.step.character.body':
+    'This is where you spend the XP you earn: armour, helmet, weapon, background and frame. Everything you buy shows on the character right away.',
   'tutorial.step.profileStats.title': 'Your progress',
   'tutorial.step.profileStats.body': "Here are your stats and, a bit further down, your recent activity history.",
   'tutorial.step.appearance.title': 'Make it yours',
-  'tutorial.step.appearance.body': 'If the grey feels dull, change the accent color (or the theme) here whenever you like.',
+  'tutorial.step.appearance.body': 'Pick the accent colour and theme you like best. You can change it whenever you want.',
 }
 
 export const translations = { ca, es, en }

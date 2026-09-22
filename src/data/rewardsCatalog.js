@@ -18,17 +18,12 @@ export const unlockTemplates = [
     xpRequired: 500,
     cost: 250,
   },
-  {
-    id: 'u2',
-    title: "Marc d'Avatar: Flama",
-    description: 'Vora animada de flama per al teu perfil',
-    category: 'avatar',
-    icon: 'flame',
-    unlockType: 'purchasable',
-    levelRequired: 5,
-    xpRequired: 1400,
-    cost: 400,
-  },
+  // `u2` ("Marc d'Avatar: Flama") i `u6` ("...: Cristall") vivien aquí.
+  // S'han mogut al slot `marc` del Personatge (`characterCatalog.js`,
+  // `m1`/`m2`): eren conceptualment el mateix sistema i allà es veuen
+  // aplicats de debò. Els ids `u2`/`u6` NO es reutilitzen mai per a res
+  // més — hi ha estats desats que encara els porten, i `AppProvider` els
+  // migra a `m1`/`m2`.
   {
     id: 'u3',
     title: 'Mode Concentració+',
@@ -59,17 +54,6 @@ export const unlockTemplates = [
     levelRequired: 8,
     xpRequired: 3500,
     cost: 600,
-  },
-  {
-    id: 'u6',
-    title: "Marc d'Avatar: Cristall",
-    description: 'Marc brillant de cristall animat',
-    category: 'avatar',
-    icon: 'diamond',
-    unlockType: 'purchasable',
-    levelRequired: 9,
-    xpRequired: 4400,
-    cost: 700,
   },
   {
     id: 'u7',

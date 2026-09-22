@@ -29,7 +29,11 @@ export function computeLifetimeMetrics(state) {
   }
 }
 
-function meetsRequirement(template, metrics) {
+/** "Ja es compleix el requisit per tenir/comprar això?" — nivell i/o XP
+ * total acumulada. Exportada perquè el Personatge (`characterEngine.js`)
+ * faci servir exactament la mateixa regla que els desbloquejos, en lloc de
+ * tenir-ne una còpia que pugui divergir. */
+export function meetsRequirement(template, metrics) {
   const levelOk = template.levelRequired == null || metrics.level >= template.levelRequired
   const xpOk = template.xpRequired == null || metrics.xpTotal >= template.xpRequired
   return levelOk && xpOk

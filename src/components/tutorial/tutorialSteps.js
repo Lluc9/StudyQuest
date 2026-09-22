@@ -1,5 +1,5 @@
 // Recorregut del Tutorial inicial (veure NOTES.md, "Tutorial inicial") —
-// font única d'aquests 9 passos, compartida entre `TutorialOverlay.jsx`
+// font única d'aquests 10 passos, compartida entre `TutorialOverlay.jsx`
 // (que els recorre) i qualsevol pantalla que necessiti saber "estic sent
 // ressaltada ara mateix?" (MissionsPage/RewardsPage, per obrir la pestanya
 // o el filtre correcte abans que el pas es faci visible).
@@ -67,6 +67,14 @@ export const TUTORIAL_STEPS = [
     type: 'explain',
     titleKey: 'tutorial.step.unlockCard.title',
     bodyKey: 'tutorial.step.unlockCard.body',
+  },
+  {
+    id: 'character',
+    screen: 'recompenses',
+    target: 'tutorial-character',
+    type: 'explain',
+    titleKey: 'tutorial.step.character.title',
+    bodyKey: 'tutorial.step.character.body',
   },
   {
     id: 'profile-stats',

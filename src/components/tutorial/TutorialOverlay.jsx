@@ -42,7 +42,7 @@ function computeCardPosition(rect) {
 }
 
 /**
- * Recorregut "spotlight" del Tutorial inicial (9 passos — veure
+ * Recorregut "spotlight" del Tutorial inicial (10 passos — veure
  * `tutorialSteps.js` i NOTES.md). Viu dins d'`AppShell` (App.jsx), per
  * sobre de `Sidebar` + `main`: l'usuari veu l'app real de fons, mai una
  * pantalla a part (a diferència de l'Onboarding). Localitza l'element a

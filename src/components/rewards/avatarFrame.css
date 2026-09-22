@@ -1,0 +1,58 @@
+/* ---------- AvatarFrame ----------
+   El marc se superposa al contenidor de l'avatar (que ha de ser
+   `position: relative`). `inset: -15%` fa que el requadre central del
+   viewBox (11.5..88.5) caigui just damunt de l'avatar sigui quina sigui
+   la seva mida —72px a Perfil, 56px a Compte, 200px al retrat—, i deixa
+   l'orla de cada costat perquè hi sobresurtin les flames.
+
+   `z-index: 0` amb l'avatar a `z-index: 1`: el marc queda al darrere,
+   igual que feia `.avatar-flame-ring`. Les animacions es neutralitzen
+   soles amb el toggle d'Animacions (regla global `[data-animations='off']`
+   a variables.css). */
+.avatar-frame {
+  position: absolute;
+  inset: -15%;
+  z-index: 0;
+  width: auto;
+  height: auto;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* Cada capa de foc batega des del seu propi centre. Amb tres durades
+   diferents (les fixa el component) les siluetes es desfasen entre elles
+   i el conjunt parpelleja de manera irregular, que és el que distingeix
+   una flama d'una sanefa que s'infla i es desinfla sencera. */
+.avatar-frame-fire {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation-name: avatar-frame-flicker;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+@keyframes avatar-frame-flicker {
+  from {
+    transform: scale(0.982);
+    opacity: 0.88;
+  }
+  to {
+    transform: scale(1.022);
+    opacity: 1;
+  }
+}
+
+.avatar-frame-shard {
+  animation: avatar-frame-shimmer 2.8s ease-in-out infinite;
+}
+
+@keyframes avatar-frame-shimmer {
+  0%,
+  100% {
+    opacity: 0.72;
+  }
+  50% {
+    opacity: 1;
+  }
+}

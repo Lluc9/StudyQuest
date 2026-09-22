@@ -5,10 +5,13 @@
 
 // Etiquetes traduïdes amb `t('unlockCategory.<id>')` al component — mai
 // hardcoded aquí.
+// La categoria 'avatar' va desaparèixer en moure els dos marcs d'avatar al
+// Personatge (veure `rewardsCatalog.js`): era l'única categoria que es
+// quedava sense cap desbloqueig, i un filtre que no retorna mai res no
+// s'ha de poder prémer.
 export const unlockCategories = [
   { id: 'tots' },
   { id: 'cosmetic' },
-  { id: 'avatar' },
   { id: 'funcio' },
   { id: 'titol' },
   { id: 'insignia' },

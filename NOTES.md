@@ -378,13 +378,13 @@ setmanal — no calia cap sincronització addicional.
   especificada literalment a l'encàrrec. Es va optar per **revertir la
   seva contribució antiga i (en edició) aplicar la nova**, reutilitzant
   `applyActivityEffect()` (la mateixa funció que fa servir
-  completar/descompletar des d'Inici) — si no ho féssim així, esborrar una
-  activitat ja completada deixaria un XP "fantasma" per sempre a
-  `xpTotal`, incoherent amb el que realment representen les activitats
-  completades. Verificat en viu: editar la durada d'una activitat
-  completada (`t4`) va recalcular `xpTotal`, `xpGainedToday`,
-  `hoursStudiedToday` i el gràfic setmanal exactament pel delta esperat
-  (-10 XP en aquell cas concret).
+  completar/descompletar des d'Inici). Verificat en viu: editar la durada
+  d'una activitat completada (`t4`) va recalcular `xpTotal`,
+  `xpGainedToday`, `hoursStudiedToday` i el gràfic setmanal exactament pel
+  delta esperat (-10 XP en aquell cas concret).
+  **⚠️ Per a ELIMINAR això ja no és cert** — veure "Eliminar una activitat
+  completada no revoca res" més avall, que ho va substituir. Editar i
+  desmarcar sí que continuen funcionant tal com es descriu aquí.
 - `applyActivityEffect(state, dateKey, xp, durationMin, sign)` és la
   funció compartida per completar/descompletar, editar i eliminar: aplica
   XP total/nivell sempre; `xpGainedToday`/`hoursStudiedToday` només si
@@ -1671,6 +1671,316 @@ nou → sense etiqueta; amb una activitat completada (injectada per a la
 prova) → etiqueta visible de nou, sense error de consola ni salt de
 disseny (el `justify-content: space-between` de la capçalera ja
 funcionava bé amb un sol fill).
+
+## Personatge (Recompenses → Personatge) — PROVA, encara no decidit
+
+**Estat: només a localhost.** Afegit a petició de l'usuari per provar-lo i
+decidir després si entra a la versió pública. No s'ha tret res: és una
+quarta pestanya de Recompenses al costat de Nivells / Desbloquejos /
+Assoliments.
+
+### D'on ve
+
+De tres respostes d'una enquesta a usuaris de proves, que apuntaven totes
+al mateix: *"Posaria més coses amb les que pots usar el XP com alguna mena
+d'avatar o personatges que es puguin personalitzar"*, *"Afegiria més
+incentius per seguir millorant"*, *"Donar-li alguna utilitat mes a la xp,
+com un avatar personalitzable"*. El que demanaven no era més progressió
+automàtica sinó **poder gastar l'XP**, així que el sistema és de COMPRA
+amb `xpAvailable` (no de desbloqueig automàtic per nivell, que era la
+primera idea i es va descartar per això).
+
+La diferència amb Desbloquejos —que ja és "gastar XP"— és que allà compres
+una cosa abstracta i reps un check verd; aquí la compra es VEU de seguida
+sobre el personatge. Aquesta visibilitat és tota la raó de ser de
+l'apartat.
+
+### Peces (`src/data/characterCatalog.js`)
+
+5 slots amb 1 peça base + 2 o 3 comprables cadascun = 18 peces (14 de
+comprables). Els slots són `armadura`, `casc`, `arma`, `fons` i `marc`
+(`CHARACTER_SLOTS` també fixa l'ordre en què es mostren).
+
+- La peça amb `cost: 0` és la BASE del seu slot: no es compra mai, es té
+  sempre i és el punt de partida. Permet també tornar enrere (desequipar).
+- Preus 150 / 350 / 700 XP per als tres graus, amb `levelRequired`
+  esglaonat (2/4/7 aprox.) perquè no s'obri tot alhora. El primer grau és
+  barat a propòsit: la primera compra ha d'arribar aviat, que és el que
+  demanava l'enquesta. El slot `marc` és l'excepció: manté els preus i
+  requisits que ja tenien com a desbloquejos (400/NIV.5 i 700/NIV.9).
+- Els títols i descripcions del catàleg van **sense traduir**, igual que
+  `rewardsCatalog.js` (desbloquejos i assoliments). Només el cromo de la
+  interfície (noms dels slots, botons, comptadors) passa per `t()`, amb
+  claus `character.*` als tres idiomes.
+
+### Lògica (`src/utils/characterEngine.js`)
+
+Funcions pures, mateix plantejament que `rewardsEngine.js`. De fet en
+reutilitza `meetsRequirement` (ara exportada des d'allà) perquè "ser
+elegible" signifiqui exactament el mateix aquí que als desbloquejos, en
+lloc de tenir-ne una còpia que pugui divergir.
+
+La diferència amb els desbloquejos és que aquí SÍ que cal triar: es poden
+tenir diverses peces del mateix slot i només se'n porta una. Per això
+l'estat és `character: { ownedItemIds, equipped }` (una peça per slot) i
+no una simple llista com `ownedUnlockIds`.
+
+- `purchaseCharacterItem` gasta `xpAvailable` i **mai** toca `xpTotal` —
+  mateixa economia que `purchaseUnlock` (veure "XP total vs. XP
+  disponible"). La peça comprada queda equipada a l'instant: és l'únic
+  moment en què val la pena decidir per l'usuari, perquè veure el canvi
+  de seguida és justament el sentit de la compra.
+- `equipCharacterItem` no té cost i només accepta peces que ja es tinguin.
+- `resolveEquippedItems` cau a la peça base sempre que un slot apunti a
+  una peça que no es pugui dur (inexistent o no comprada).
+
+**Invariant important**: `buildSelectors` resol PRIMER què porta posat de
+debò i marca les targetes contra aquest mateix resultat (`equippedIds`),
+no contra l'estat cru. Així el dibuix i el "Equipat" de la llista no poden
+dir coses diferents — sense això, un estat editat a mà mostrava una peça
+com a equipada mentre el personatge en dibuixava una altra.
+
+### Dibuix (`components/rewards/CharacterAvatar.jsx`)
+
+SVG de 200x200 compost per capes, en aquest ordre: fons → arma → pit →
+braços → detalls → espatlleres → mà → coll → casc (darrere) → cap → cara →
+casc (davant). Cada peça té aquí la seva forma, indexada pel seu id —
+mateixa convenció que la taula `ICONS` d'`UnlockCard.jsx`: les dades porten
+una clau i el component decideix com es pinta.
+
+- **L'arma va abans del cos i la mà després.** És el que fa que sembli
+  agafada i no enganxada al costat. La mà només es dibuixa si hi ha arma
+  equipada (`w0` són les mans buides).
+- **Tot material té degradat**, mai un color pla (llum a dalt a
+  l'esquerra). És el canvi que més fa que no sembli un dibuix pla.
+- **Cada armadura canvia la SILUETA**, no només el color: túnica sense
+  espatlleres i amb cordó, cuir amb corretges i sivella, malla amb
+  espatlleres d'acer i reblons, plaques rúniques amb espatlleres angulars
+  i caire d'or. És el que permet reconèixer de cop què s'ha comprat, que
+  era la petició concreta de l'usuari.
+- La cota de malla és un `<pattern>` d'anelles entrellaçades, no punts
+  solts: és el que la fa identificable a primera vista.
+- Els cascs es parteixen en `back` (darrere el cap) i `front` (al davant),
+  perquè una caputxa necessita tela per darrere i vora per davant amb el
+  mateix cap enmig. `hidesHair` evita cabells sota un casc que els taparia.
+- Els colors són fixos (no tokens CSS) a propòsit: són materials del
+  personatge —cuir, acer, or— que han de llegir-se igual amb el tema clar
+  i amb el fosc, no acompanyar el color d'accent de la interfície.
+- Els detalls interns de cada armadura van dins d'un `clipPath` del pit,
+  perquè no surtin del cos.
+
+### Marcs d'avatar (`components/rewards/AvatarFrame.jsx`)
+
+Els dos marcs eren els desbloquejos `u2`/`u6`. Ara són el slot `marc` del
+personatge (`m1`/`m2`) i es dibuixen amb un únic component SVG compartit
+pels TRES llocs on es veu el mateix avatar: el retrat de Personatge, la
+capçalera de Perfil i Configuració → Compte. Abans era un
+`.avatar-flame-ring` de CSS (un `conic-gradient` desenfocat) que es veia
+com una taca taronja, no com un marc.
+
+- El `viewBox` és de 100x100 amb l'avatar al requadre central
+  (11.5..88.5). Amb `inset: -15%` al CSS, aquest requadre cau exactament
+  damunt de l'avatar sigui quina sigui la seva mida —56px a Compte, 72px a
+  Perfil, 200px al retrat— i les flames sobresurten per l'orla. Una sola
+  implementació per a tres mides.
+- **Els cristalls** es col·loquen amb `ANCHORS` (16 punts calculats sobre
+  el perímetre del requadre, amb l'angle cap enfora) i `DECOR_SCALE` els
+  dimensiona. Peces soltes i regulars són correctes aquí: un cristall és
+  facetat i discret. A escala 1 el marc trepitjava el text del voltant.
+- **El foc no**: veure just a sota.
+
+#### Per què el foc no es dibuixa amb peces soltes
+
+La primera versió del marc de flama feien 16 flames soltes, iguals i
+equidistants, col·locades amb els mateixos `ANCHORS` que els cristalls.
+L'usuari ho va descriure com "llumetes o un sol", i tenia raó: el que
+delata que no és foc és la REGULARITAT, no la forma de cada flama.
+
+Ara cada capa és **un únic traçat tancat** (`buildFirePath`) que recorre
+tot el perímetre encadenant desenes de llengües amb alçada i inclinació
+variables, i se'n superposen tres (altes i vermelles al darrere, curtes i
+grogues al davant). Detalls que importen:
+
+- El traçat s'omple cap endins i **l'avatar tapa el centre** (sempre té
+  fons opac, als tres llocs): així la base del foc no fa mai costura amb
+  la vora de l'avatar.
+- L'alçada **mínima** de les llengües és molt baixa a propòsit. Amb un
+  mínim alt, tot el perímetre queda ple i el marc torna a semblar un
+  anell massís; amb valls que cauen per sota de la vora de l'avatar, les
+  llengües se separen soles sense trencar la base.
+- Els punts de control de cada llengua no van repartits uniformement
+  (base ampla, estretament ràpid cap a la punta) — repartits per igual
+  sortien dents de serra.
+- `noise()` és determinista (mai `Math.random()`): el marc ha de ser
+  idèntic a cada render, si no les flames saltarien a cada repintat.
+- Les tres capes tenen durades d'animació diferents i sense sincronitzar,
+  de manera que la silueta canvia contínuament. Amb una sola capa, o amb
+  les tres sincronitzades, el marc "respira" sencer en lloc de
+  parpellejar.
+- `polar()` fa servir una superel·lipse de **grau 5**, que segueix gairebé
+  exactament un requadre arrodonit de radi 17; amb graus més baixos el
+  foc quedava massa endins just a les cantonades.
+
+### Migració dels dos marcs (`AppContext.jsx`)
+
+`migrateLegacyFrameUnlocks` converteix `u2`→`m1` i `u6`→`m2` a la càrrega:
+qui ja els havia comprat no els perd. Equipa el millor que tingui, però
+només si encara porta el marc base — mai trepitja una tria seva. Els ids
+`u2`/`u6` no es reutilitzen mai per a res més, perquè hi ha estats desats
+que encara els porten.
+
+En marxar els dos marcs, la categoria `avatar` de `rewardsData.js` es
+quedava sense cap desbloqueig, així que també s'ha tret: un filtre que no
+retorna mai res no s'ha de poder prémer.
+
+### Verificat en navegador
+
+Provat amb tema fosc i tema clar. Els tres estats de cada peça es veuen
+correctament (base equipada, comprable, bloquejada amb el nivell que li
+falta), i els botons "Comprar" surten desactivats quan l'XP disponible no
+arriba. Compra real des de la interfície: XP disponible 600 → 450, XP
+total intacte a 600, l'armadura apareix a l'instant sobre el personatge i
+la targeta passa a "Equipat". Canvi de peça amb "Equipar" correcte a tots
+els slots. Recarregada la pàgina → tot es manté, i la compra queda
+registrada a Perfil → Activitat recent ("Equipament obtingut: Cuirassa de
+Cuir", tipus `personatge` nou a `RecentActivityFeed`). Cap error de
+consola. `localStorage` buidat en acabar les proves.
+
+De la segona iteració: provades totes les combinacions d'armadura, casc,
+arma i fons amb els dos temes. Marc de flama i de cristall verificats als
+tres llocs i a les tres mides (retrat 200px, Perfil 72px, Compte 56px).
+Migració provada amb un estat que portava `ownedUnlockIds: ['u2']` →
+queda `m1` a `ownedItemIds`, equipat, i `u2` desapareix de
+`ownedUnlockIds`; Desbloquejos passa a mostrar-ne 6 i el filtre "Avatar"
+ja no hi és.
+
+**Correcció durant les proves**: l'Elm de Ferro tapava els ulls (semblava
+un cubell) — la vora de l'elm ha de quedar just per sobre dels ulls
+(y≈70 al viewBox), no a sobre de la cara.
+
+### Segona iteració: dibuix més realista i marcs moguts
+
+A petició de l'usuari després de provar la primera versió: el disseny del
+personatge no convencia, costava identificar què s'havia comprat, i el
+marc de flama "no és molt bonic". Tres canvis, tots documentats a les
+seccions de sobre:
+
+1. **Personatge redibuixat**: degradats a tots els materials, proporcions
+   més contingudes, braços i una mà que agafa l'arma de debò, cara amb
+   celles/llums als ulls, i cada armadura amb silueta pròpia.
+2. **Marc de flama refet** com a SVG en lloc del degradat desenfocat de
+   CSS. Va caldre una segona passada: la primera versió SVG (16 flames
+   soltes i equidistants) encara es veia com "llumetes o un sol" — veure
+   "Per què el foc no es dibuixa amb peces soltes" més amunt.
+3. **Marcs moguts** de Desbloquejos al slot `marc` del Personatge, amb la
+   migració corresponent.
+
+**Correccions trobades provant aquesta segona iteració:**
+- El marc, a escala 1, semblava un sol i es menjava el nom de sota
+  (`DECOR_SCALE`, més l'orla del retrat a `character.css`).
+- La vora de la caputxa, amb un to clar, semblava una cinta al cap; ara és
+  tan fosca com la resta de la tela i el relleu el fa un filet de llum.
+- El cabell tenia gruix gairebé zero (la corba interior del creixent
+  quedava per sobre de l'exterior): el personatge sortia calb sense casc.
+
+### Pendent de decidir (amb l'usuari)
+
+- Si entra o no a la versió pública.
+- Els 6 desbloquejos que encara no fan res queden més "buits" en
+  comparació amb aquest apartat — es poden connectar amb el mateix patró
+  que "Tema Fosc Pro" (veure més amunt).
+
+## Eliminar una activitat completada no revoca res
+
+**Substitueix** la decisió d'"Editar i eliminar activitats (Calendari) →
+XP disponible vs. XP guanyat" per al cas d'ELIMINAR. Editar i desmarcar no
+canvien.
+
+### El problema
+
+Un usuari va completar una tasca (+450 XP, nivell 2) i després la va
+eliminar des del Calendari: l'XP va tornar a 0. Era el comportament
+dissenyat —mantenir `xpTotal` coherent amb les activitats que existeixen—
+però és equivocat per a una app de gamificació: **l'XP és el registre del
+que has fet, no un inventari del que encara tens desat**. La sessió
+d'estudi va passar igualment; eliminar l'entrada del calendari és endreçar,
+no desfer l'estudi.
+
+A més, la coherència que justificava revertir ja estava trencada a la
+resta del sistema: l'XP de les **missions** no es revoca mai
+(`reevaluateAutomaticMissions` només passa d'`active` a `completed`, mai al
+revés), així que es podia completar una missió, esborrar les activitats
+que l'havien completada i conservar-ne l'XP.
+
+### Per què no n'hi havia prou amb "deixar de revertir"
+
+El primer plantejament va ser simplement no cridar `applyActivityEffect()`
+en eliminar. Això arregla l'XP, però no la resta: el progrés de les
+missions actives, les hores totals de Perfil, la distribució per matèria i
+`tasksCompletedToday` (que alimenta la ratxa) **es recalculen en viu a
+partir d'`activities`**. Amb l'entrada esborrada, tot això baixa igualment.
+
+També quedava un forat latent a la ratxa: `streakBoostedToday` seguiria
+dient "ja comptada" mentre `tasksCompletedToday` hauria baixat, i la
+següent crida a `recomputeStreak` (en completar qualsevol altra tasca)
+hauria restat un dia de ratxa en un moment desconcertant.
+
+### La solució: arxivar en lloc d'esborrar
+
+`deleteActivity` (AppContext.jsx):
+- **Activitat PENDENT** → s'esborra de debò. No havia aportat res.
+- **Activitat COMPLETADA** → es marca `archived: true`. Desapareix de la
+  llista d'Inici i del Calendari, però continua sent a `state.activities`.
+
+Com que el registre hi continua sent, **tot el que compta segueix
+comptant** sense cap canvi als motors: XP, nivell, ratxa, hores, progrés
+de les missions actives i les estadístiques de Perfil. No calen "terres"
+(*floors*) ni contadors duplicats.
+
+I la distinció important es manté sola: **desmarcar la casella
+(`toggleTask`) sí que ho reverteix tot**, perquè allà l'usuari està dient
+"no ho he fet" (l'activitat passa a `completed: false` i els càlculs
+deriven el valor correcte tots sols). Un *floor* sobre el progrés de les
+missions hauria trencat justament aquest cas.
+
+### On es filtra
+
+`getVisibleActivities()` a AppContext.jsx és **l'únic punt** on es treuen
+les arxivades. `buildSelectors` la fa servir per a dues coses —
+`getUpcomingActivities()` (llista d'Inici) i el que retorna com a
+`activities` (que és el que consumeixen `CalendarPage` → `MonthGrid` /
+`WeeklyDistribution`)— mentre que tota la resta del selector
+(`todaysActivities`, `lifetimeMetrics`, `missionsDisplay`, `profile`)
+treballa amb la llista SENCERA.
+
+Els motors (`rewardsEngine`, `profileEngine`, `missionEngine`) i el
+reducer no saben res d'`archived`: reben sempre `state.activities` tal
+qual. Afegir un camp i filtrar en un sol lloc era molt menys invasiu que
+tocar cada consumidor.
+
+Camp nou amb valor per defecte a `migrateActivities()` (`archived: false`)
+i a `addActivity()` — un estat persistit anterior no el té i `undefined`
+ja es comporta com a `false`, però es deixa explícit pel mateix criteri
+que `completed`/`completedAt`.
+
+### Conseqüència acceptada
+
+Una activitat completada i eliminada no es pot recuperar des de la
+interfície (ja no es veu enlloc per poder-la desmarcar). Eliminar sempre
+havia estat irreversible, així que no és cap regressió — però ara, a més,
+no costa cap progrés.
+
+### Verificat en navegador
+
+Tasca de 3h/450 XP completada → XP 450, nivell 2, 3h avui, barra de DT a
+3h, missió setmanal "Completa 5 activitats" a 1/5, Perfil amb 1 tasca i
+3h. Eliminada des del Calendari → desapareix del dia i de la distribució
+setmanal ("Dt 22: Lliure") i de la llista d'Inici, i **tot el progrés es
+manté intacte**: mateixos 450 XP, nivell 2, 3h, 1/5 a la missió, i Perfil
+segueix amb 1 tasca, 3h i la distribució per matèria al 100% d'Anglès.
+Contraprova: completar una segona tasca (+150 XP → 600) i desmarcar-la
+revereix correctament a 450; eliminar-la després, ja pendent, l'esborra de
+debò sense tocar el progrés. Cap error de consola.
 
 ## Convenciones a mantener
 

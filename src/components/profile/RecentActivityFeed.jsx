@@ -1,5 +1,5 @@
 import Card from '../common/Card'
-import { IconCheckCircle, IconFlame, IconTarget, IconStar, IconTrophy, IconGift, IconClock } from '../common/Icons'
+import { IconCheckCircle, IconFlame, IconTarget, IconStar, IconTrophy, IconGift, IconClock, IconShield } from '../common/Icons'
 import { useApp } from '../../context/AppContext'
 import './profile.css'
 
@@ -10,6 +10,7 @@ const TYPE_CONFIG = {
   nivell: { Icon: IconStar, color: 'var(--accent-yellow)' },
   assoliment: { Icon: IconTrophy, color: 'var(--accent-orange)' },
   desbloqueig: { Icon: IconGift, color: 'var(--accent-cyan)' },
+  personatge: { Icon: IconShield, color: 'var(--accent-purple-light)' },
 }
 
 export default function RecentActivityFeed({ items }) {

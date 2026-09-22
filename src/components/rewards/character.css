@@ -1,0 +1,253 @@
+/* ---------- Personatge (Recompenses → Personatge) ----------
+   Dues columnes: el personatge (enganxat mentre es fa scroll per la
+   llista, perquè el canvi en comprar/equipar sempre es vegi) i les peces
+   agrupades per slot. */
+.character-panel {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.character-preview-card {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(34, 211, 238, 0.08));
+  border-color: rgba(139, 92, 246, 0.25);
+}
+
+.character-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* El marc (`AvatarFrame`) se superposa a aquest contenidor amb
+   `inset: -20%`, per això ha de tenir la mida exacta del retrat i deixar
+   espai al voltant (el `margin` evita que les flames quedin tallades pel
+   límit de la targeta). */
+.character-portrait {
+  position: relative;
+  margin: 22px 0 16px;
+  line-height: 0;
+}
+
+.character-avatar {
+  position: relative;
+  z-index: 1;
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card-soft);
+}
+
+.character-preview-name {
+  margin-top: 14px;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.character-preview-level {
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.character-preview-progress {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.character-preview-progress-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.character-preview-progress-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.character-preview-progress-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.character-preview-xp {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.character-preview-xp-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--accent-cyan);
+}
+
+.character-preview-xp-label {
+  margin-top: 2px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ---------- Slots ---------- */
+.character-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.character-slot-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.character-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+/* ---------- Targeta d'una peça ---------- */
+.character-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+}
+
+.character-item.is-equipped {
+  border-color: var(--accent-green);
+  background: rgba(52, 211, 153, 0.07);
+}
+
+.character-item.is-locked {
+  opacity: 0.55;
+}
+
+.character-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.character-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 92, 246, 0.16);
+  color: var(--accent-purple-light);
+}
+
+.character-item-icon.is-locked {
+  background: var(--bg-card-soft);
+  color: var(--text-muted);
+}
+
+.character-item-lock {
+  color: var(--text-muted);
+}
+
+.character-item-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.character-item-description {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.character-item-meta {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-yellow);
+}
+
+.character-item-btn {
+  margin-top: 6px;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 7px 10px;
+  background: var(--gradient-brand);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  width: 100%;
+}
+
+.character-item-btn--equip {
+  background: var(--bg-card-soft);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+}
+
+.character-item-btn--equip:hover {
+  background: var(--bg-hover);
+}
+
+.character-item-btn:disabled {
+  opacity: 0.4;
+  background: var(--bg-card-soft);
+  color: var(--text-muted);
+}
+
+.character-item-state {
+  margin-top: 6px;
+  padding: 7px 10px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-green);
+}
+
+.character-item-state--locked {
+  color: var(--text-muted);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1080px) {
+  .character-slot-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 860px) {
+  .character-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .character-preview-card {
+    position: static;
+  }
+}

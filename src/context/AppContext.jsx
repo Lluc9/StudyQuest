@@ -10,6 +10,7 @@ import { defaultSubjectsCatalog } from '../data/subjectsCatalog'
 import { initialActivities } from '../data/calendarData'
 import { MAX_ACTIVE_PERSONAL_MISSIONS } from '../data/missionTemplates'
 import { unlockTemplates, achievementTemplates } from '../data/rewardsCatalog'
+import { characterItems, CHARACTER_SLOTS, getDefaultEquipped, getBaseItemId } from '../data/characterCatalog'
 import { loadState, saveState } from '../data/storage'
 import { calculateActivityXp } from '../utils/xpFormulas'
 import {
@@ -39,6 +40,12 @@ import {
   purchaseUnlock as purchaseUnlockEngine,
   getUnlockDisplay,
 } from '../utils/rewardsEngine'
+import {
+  getCharacterItemDisplay,
+  purchaseCharacterItem as purchaseCharacterItemEngine,
+  equipCharacterItem as equipCharacterItemEngine,
+  resolveEquippedItems,
+} from '../utils/characterEngine'
 import {
   renewMissions,
   reevaluateAutomaticMissions,
@@ -128,6 +135,41 @@ function buildInitialSettings() {
   }
 }
 
+// Estat inicial del Personatge (Recompenses → Personatge): res comprat i
+// les peces base equipades a cada slot. Mateixa forma tant per a un usuari
+// nou com per a un estat persistit anterior a aquest sistema (migració a
+// `AppProvider`) — per això és una funció i no una constant compartida,
+// que es podria mutar sense voler.
+function buildInitialCharacter() {
+  return { ownedItemIds: [], equipped: getDefaultEquipped() }
+}
+
+// Els dos marcs d'avatar van néixer com a desbloquejos (`u2`/`u6`) i ara
+// són peces del slot `marc` del Personatge. Qui ja els havia comprat no
+// els pot perdre: es converteixen a la peça equivalent i s'equipa la
+// millor que tingui (el de cristall guanya, que és el més car), però
+// només si encara porta el marc base — mai es trepitja una tria seva.
+const LEGACY_FRAME_UNLOCKS = { u2: 'm1', u6: 'm2' }
+
+function migrateLegacyFrameUnlocks(ownedUnlockIds, character) {
+  const legacyOwned = ownedUnlockIds.filter((id) => LEGACY_FRAME_UNLOCKS[id])
+  if (legacyOwned.length === 0) return { ownedUnlockIds, character }
+
+  const migratedIds = legacyOwned.map((id) => LEGACY_FRAME_UNLOCKS[id])
+  const ownedItemIds = [...new Set([...character.ownedItemIds, ...migratedIds])]
+  const isBaseFrame = character.equipped.marc === getBaseItemId('marc')
+
+  return {
+    ownedUnlockIds: ownedUnlockIds.filter((id) => !LEGACY_FRAME_UNLOCKS[id]),
+    character: {
+      ownedItemIds,
+      equipped: isBaseFrame
+        ? { ...character.equipped, marc: migratedIds.includes('m2') ? 'm2' : 'm1' }
+        : character.equipped,
+    },
+  }
+}
+
 // Cap matèria predeterminada ve seleccionada d'entrada: és l'usuari qui
 // tria, en la futura pantalla d'onboarding, quines estudia.
 function buildInitialSubjectsState() {
@@ -151,7 +193,7 @@ function migrateActivities(activitiesByDate) {
   const migrated = {}
   for (const dateKey of Object.keys(activitiesByDate)) {
     migrated[dateKey] = activitiesByDate[dateKey].map((a) => {
-      const withDefaults = { completed: false, completedAt: null, ...a }
+      const withDefaults = { completed: false, completedAt: null, archived: false, ...a }
       if (withDefaults.completed && !withDefaults.completedAt) {
         return { ...withDefaults, completedAt: `${dateKey}T${withDefaults.time}:00` }
       }
@@ -182,6 +224,7 @@ function buildInitialState() {
     activities: initialActivities,
     ownedUnlockIds: [],
     ownedAchievementIds: [],
+    character: buildInitialCharacter(),
     // Registre cronològic mínim d'esdeveniments importants (activitat
     // completada, missió completada, ratxa, nivell, assoliment,
     // desbloqueig), reutilitzat tant per "Activitat recent" com per
@@ -212,6 +255,26 @@ function buildZeroProgress() {
   }
 }
 
+// Tot el que es posa a zero quan es "comença de nou": progrés, activitats,
+// missions, recompenses i historial. NO inclou `settings` ni `subjects`,
+// que cada cridador decideix si conserva o refà. Definició única
+// compartida per `buildFreshState` (final de l'Onboarding) i
+// `finishTutorial` (final del Tutorial) — si algun dia s'afegeix una
+// secció nova a l'estat, només cal posar-la a zero aquí.
+function buildZeroProgressState(baselineEventId) {
+  return {
+    weeklyActivity: seedWeeklyActivity.map((d) => ({ ...d, hours: 0 })),
+    progress: buildZeroProgress(),
+    activities: {},
+    missions: [],
+    missionsMeta: { dailyRenewedAt: null, weeklyRenewedAt: null },
+    ownedUnlockIds: [],
+    ownedAchievementIds: [],
+    character: buildInitialCharacter(),
+    eventLog: [{ id: baselineEventId, type: 'baseline', date: new Date().toISOString(), xp: null, xpTotalAfter: 0 }],
+  }
+}
+
 // Estat real d'un usuari nou en completar l'Onboarding (`COMPLETE_ONBOARDING`):
 // tot a zero (progrés, activitats, missions, recompenses, historial), amb
 // `subjects` = les matèries que ha triat al pas 3 (ja aplicades a l'estat
@@ -224,15 +287,8 @@ function buildFreshState(state, { username, language }) {
   const defaultSettings = buildInitialSettings()
 
   return {
-    weeklyActivity: seedWeeklyActivity.map((d) => ({ ...d, hours: 0 })),
-    progress: buildZeroProgress(),
+    ...buildZeroProgressState('ev-onboarding'),
     subjects: state.subjects ?? buildInitialSubjectsState(),
-    activities: {},
-    missions: [],
-    missionsMeta: { dailyRenewedAt: null, weeklyRenewedAt: null },
-    ownedUnlockIds: [],
-    ownedAchievementIds: [],
-    eventLog: [{ id: 'ev-onboarding', type: 'baseline', date: new Date().toISOString(), xp: null, xpTotalAfter: 0 }],
     settings: {
       ...defaultSettings,
       username: trimmedUsername || defaultSettings.username,
@@ -462,6 +518,7 @@ function addActivity(state, payload) {
     xp: calculateActivityXp(payload.type, payload.durationMin),
     completed: false,
     completedAt: null,
+    archived: false,
   }
 
   const dayActivities = state.activities[payload.dateKey] ?? []
@@ -537,30 +594,40 @@ function updateActivity(state, payload) {
   return { ...state, activities, weeklyActivity: added.weeklyActivity, progress: finalProgress, missions }
 }
 
-// Elimina una activitat. Si no s'havia completat, l'XP total NO canvia
-// (era només XP "disponible/previst"). Si ja estava completada, es
-// reverteix la seva contribució per mantenir `xpTotal` coherent. També es
-// recalculen les missions automàtiques (poden perdre progrés si
-// l'activitat eliminada era una de les que hi comptaven).
+// Elimina una activitat. **Mai treu res ja guanyat** (veure NOTES.md,
+// "Eliminar una activitat completada no revoca res"):
+//
+// - PENDENT: s'esborra de debò. No havia aportat mai res al progrés (el
+//   seu XP era només "disponible/previst"), així que no hi ha res a
+//   conservar.
+// - COMPLETADA: l'entrada es marca `archived: true` en lloc d'esborrar-se.
+//   Desapareix del Calendari i de la llista d'Inici, però continua
+//   comptant per a l'XP, la ratxa, el progrés de les missions actives i
+//   les estadístiques de Perfil. La sessió d'estudi va passar igualment:
+//   el que demana l'usuari en prémer "Eliminar" és treure-la de la
+//   llista, no desfer-la.
+//
+// Conservar el registre (en lloc d'esborrar-lo i deixar de revertir el
+// progrés) és el que fa que això funcioni per a TOT alhora i no només per
+// a l'XP: les missions i les hores de Perfil es recalculen en viu a
+// partir d'`activities`, i amb l'entrada esborrada baixarien igualment.
+// Desmarcar la casella (`toggleTask`) sí que continua revertint-ho tot —
+// allà l'usuari està dient "no ho he fet", que és una altra cosa.
 function deleteActivity(state, { activityId, dateKey }) {
   const dayList = state.activities[dateKey]
   if (!dayList) return state
   const activity = dayList.find((a) => a.id === activityId)
   if (!activity) return state
 
-  const dayActivities = dayList.filter((a) => a.id !== activityId)
-  const activities = { ...state.activities, [dateKey]: dayActivities }
-
-  if (!activity.completed) {
-    const { missions, progress } = reevaluateMissionsAfterActivityChange(state, activities, state.progress)
-    return { ...state, activities, missions, progress }
+  if (activity.completed) {
+    const dayActivities = dayList.map((a) => (a.id === activityId ? { ...a, archived: true } : a))
+    return { ...state, activities: { ...state.activities, [dateKey]: dayActivities } }
   }
 
-  const removed = applyActivityEffect(state, dateKey, activity.xp, activity.durationMin, -1)
-  const progress = recomputeStreak(removed.progress, activities[getTodayKey()] ?? [], state.settings.dailyTaskGoal)
-  const { missions, progress: finalProgress } = reevaluateMissionsAfterActivityChange(state, activities, progress)
-
-  return { ...state, activities, weeklyActivity: removed.weeklyActivity, progress: finalProgress, missions }
+  const dayActivities = dayList.filter((a) => a.id !== activityId)
+  const activities = { ...state.activities, [dateKey]: dayActivities }
+  const { missions, progress } = reevaluateMissionsAfterActivityChange(state, activities, state.progress)
+  return { ...state, activities, missions, progress }
 }
 
 // available -> active. A partir d'aquí compta el progrés (automàtic o
@@ -677,6 +744,39 @@ function purchaseUnlockAction(state, unlockId) {
   }
 }
 
+// Compra una peça del Personatge. Exactament la mateixa economia que
+// `purchaseUnlockAction` (gasta `xpAvailable`, mai toca `xpTotal`), amb
+// l'afegit que la peça comprada queda equipada a l'instant — veure
+// `purchaseCharacterItem` a characterEngine.js.
+function purchaseCharacterItemAction(state, itemId) {
+  const character = state.character ?? buildInitialCharacter()
+  const result = purchaseCharacterItemEngine(
+    characterItems,
+    itemId,
+    computeLifetimeMetrics(state),
+    character.ownedItemIds,
+    state.progress.xpAvailable,
+    character.equipped,
+  )
+  if (!result) return state
+
+  return {
+    ...state,
+    character: { ownedItemIds: result.ownedItemIds, equipped: result.equipped },
+    progress: { ...state.progress, xpAvailable: result.xpAvailable },
+  }
+}
+
+// Canvia la peça equipada d'un slot. No té cap cost: només es pot equipar
+// el que ja s'ha comprat (o una peça base, per tornar enrere).
+function equipCharacterItemAction(state, itemId) {
+  const character = state.character ?? buildInitialCharacter()
+  const equipped = equipCharacterItemEngine(characterItems, itemId, character.ownedItemIds, character.equipped)
+  if (!equipped) return state
+
+  return { ...state, character: { ...character, equipped } }
+}
+
 // Desa nom d'usuari + idioma (botó "Desar canvis" de Compte). Ignora
 // noms buits perquè el `user.name` mostrat a tot arreu mai quedi buit.
 function saveAccountInfo(state, { username, language }) {
@@ -767,8 +867,26 @@ function completeOnboarding(state, payload) {
 // `SKIP_TUTORIAL`): "Saltar tutorial" té exactament el mateix efecte que
 // acabar-lo normalment (demanat explícitament a l'encàrrec) — mai torna
 // a aparèixer, l'usuari no queda "a mitges" per sempre.
+//
+// En acabar, l'app queda com just després de l'Onboarding: el tutorial fa
+// crear una activitat, completar-la i iniciar una missió, i tot això són
+// PROVES, no feina real de l'usuari. Deixar-ho posat obligava a esborrar
+// la tasca de mentida i a carregar amb una missió que potser no vol fer
+// ara. Es reutilitza `buildZeroProgressState()` (la mateixa definició de
+// "començar de zero" que fa servir l'Onboarding) i es tornen a generar
+// missions fresques disponibles, com a `completeOnboarding`.
+//
+// `settings` i `subjects` es conserven a propòsit: l'usuari pot haver
+// canviat el color d'accent o el tema al pas d'Aparença, i seria absurd
+// descartar-ho just després de convidar-lo a triar-ho.
 function finishTutorial(state) {
-  return { ...state, settings: { ...state.settings, tutorialComplete: true } }
+  const cleared = {
+    ...state,
+    ...buildZeroProgressState('ev-tutorial'),
+    settings: { ...state.settings, tutorialComplete: true },
+  }
+  const renewal = renewMissions(cleared, resolveUserSubjects(cleared.subjects), cleared.settings.weekStartsOn)
+  return renewal ? { ...cleared, ...renewal } : cleared
 }
 
 // Desa el pas actual mentre el tutorial està en marxa, perquè recarregar
@@ -856,6 +974,13 @@ function collectDispatchEvents(prevState, state) {
     if (template) events.push({ type: 'desbloqueig', title: `Desbloqueig obtingut: ${template.title}`, xp: null, refId: id })
   }
 
+  const prevItemIds = prevState.character?.ownedItemIds ?? []
+  for (const id of state.character?.ownedItemIds ?? []) {
+    if (prevItemIds.includes(id)) continue
+    const item = characterItems.find((i) => i.id === id)
+    if (item) events.push({ type: 'personatge', title: `Equipament obtingut: ${item.title}`, xp: null, refId: id })
+  }
+
   return events
 }
 
@@ -919,6 +1044,12 @@ function reducer(state, action) {
     case 'PURCHASE_UNLOCK':
       next = purchaseUnlockAction(current, action.unlockId)
       break
+    case 'PURCHASE_CHARACTER_ITEM':
+      next = purchaseCharacterItemAction(current, action.itemId)
+      break
+    case 'EQUIP_CHARACTER_ITEM':
+      next = equipCharacterItemAction(current, action.itemId)
+      break
     case 'SAVE_ACCOUNT_INFO':
       next = saveAccountInfo(current, action.payload)
       break
@@ -964,6 +1095,19 @@ function reducer(state, action) {
 // endavant, ordenades per data i, dins del mateix dia, per hora — mai una
 // activitat futura per davant d'una d'avui — i retallada a
 // UPCOMING_TASKS_LIMIT (si avui ja l'omple, les de demà no hi caben).
+// Vista "visible" de les activitats: sense les arxivades (completades i
+// després eliminades des del Calendari — veure `deleteActivity`). És
+// l'ÚNIC punt on es filtren: les pantalles de llista i de calendari
+// reben aquesta versió i els càlculs (XP, ratxa, missions, Perfil) la
+// llista sencera, perquè una sessió arxivada va passar igualment.
+function getVisibleActivities(activitiesByDate) {
+  const visible = {}
+  for (const dateKey of Object.keys(activitiesByDate)) {
+    visible[dateKey] = activitiesByDate[dateKey].filter((a) => !a.archived)
+  }
+  return visible
+}
+
 function getUpcomingActivities(activitiesByDate, todayKey) {
   return flattenActivities(activitiesByDate)
     .filter((a) => a.dateKey >= todayKey)
@@ -1057,7 +1201,8 @@ function buildSelectors(state) {
 
   const weeklyHoursTotal = weeklyActivity.reduce((sum, d) => sum + d.hours, 0)
 
-  const upcomingTasks = getUpcomingActivities(activities, today.dateKey)
+  const visibleActivities = getVisibleActivities(activities)
+  const upcomingTasks = getUpcomingActivities(visibleActivities, today.dateKey)
   const pendingTasksCount = upcomingTasks.filter((a) => !a.completed).length
 
   const indicators = [
@@ -1115,6 +1260,29 @@ function buildSelectors(state) {
   const unlocks = unlockTemplates.map((tpl) => getUnlockDisplay(tpl, lifetimeMetrics, ownedUnlockIds, progress.xpAvailable))
   const achievements = achievementTemplates.map((tpl) => ({ ...tpl, unlocked: ownedAchievementIds.includes(tpl.id) }))
 
+  // Personatge: les peces ja resoltes (comprada/elegible/equipada),
+  // agrupades per slot en l'ordre en què es mostren, més el que porta
+  // posat ara mateix (que és el que dibuixa `CharacterAvatar`). El
+  // comptador només té en compte les peces comprables — les base no
+  // compten com a "aconseguides", ja les té tothom d'entrada.
+  const characterState = state.character ?? buildInitialCharacter()
+  // Es resol PRIMER què porta posat de debò (`resolveEquippedItems` ja
+  // descarta el que no es pugui dur) i les targetes es marquen contra
+  // aquest mateix resultat — així el dibuix i el "Equipat" de la llista
+  // no poden dir coses diferents.
+  const equippedItems = resolveEquippedItems(characterItems, characterState.equipped, characterState.ownedItemIds)
+  const equippedIds = Object.fromEntries(CHARACTER_SLOTS.map((slot) => [slot, equippedItems[slot]?.id ?? null]))
+  const characterDisplay = characterItems.map((item) =>
+    getCharacterItemDisplay(item, lifetimeMetrics, characterState.ownedItemIds, progress.xpAvailable, equippedIds),
+  )
+  const purchasableItems = characterDisplay.filter((i) => i.cost > 0)
+  const character = {
+    slots: CHARACTER_SLOTS.map((slot) => ({ slot, items: characterDisplay.filter((i) => i.slot === slot) })),
+    equipped: equippedItems,
+    ownedCount: purchasableItems.filter((i) => i.owned).length,
+    totalCount: purchasableItems.length,
+  }
+
   // Tot el que consumeix Perfil, derivat dels mateixos sistemes de dalt
   // (activities, missions, rewards, eventLog) — cap dada mock nova. Veure
   // src/utils/profileEngine.js per a com es calcula cada bloc.
@@ -1150,12 +1318,15 @@ function buildSelectors(state) {
     pendingTasksCount,
     unlocks,
     achievements,
+    character,
     // Reordenat només per a la visualització (WeeklyBarChart d'Inici) —
     // es desa sempre en ordre DL..DG intern, independent de la preferència.
     weeklyActivity: reorderWeekArray(weeklyActivity, settings.weekStartsOn),
     pendingGoals,
     subjects,
-    activities,
+    // El Calendari mostra la versió visible; tot el que calcula (missions,
+    // Perfil, mètriques) treballa amb `activities` sencera més amunt.
+    activities: visibleActivities,
     missions: missionsDisplay,
     missionStats,
     missionRecommendations,
@@ -1220,9 +1391,21 @@ export function AppProvider({ children }) {
       missionsMeta: base.missionsMeta ?? { dailyRenewedAt: null, weeklyRenewedAt: null },
       ownedUnlockIds: base.ownedUnlockIds ?? [],
       ownedAchievementIds: base.ownedAchievementIds ?? [],
+      // `character` és nou: un estat persistit anterior el rep sencer per
+      // defecte. El merge d'`equipped` camp a camp (mateix criteri que
+      // `settings`) cobreix el cas d'afegir un slot nou al catàleg més
+      // endavant sense deixar l'estat a mitges — és exactament el que va
+      // passar en afegir el slot `marc`.
+      character: {
+        ownedItemIds: base.character?.ownedItemIds ?? [],
+        equipped: { ...getDefaultEquipped(), ...base.character?.equipped },
+      },
       eventLog,
       settings,
     }
+    const migratedFrames = migrateLegacyFrameUnlocks(withDefaults.ownedUnlockIds, withDefaults.character)
+    withDefaults.ownedUnlockIds = migratedFrames.ownedUnlockIds
+    withDefaults.character = migratedFrames.character
     // Assegura missions diàries/setmanals/especial fresques ja a la
     // primera càrrega (fins i tot si l'app no s'obria des de feia dies).
     const renewal = renewMissions(withDefaults, resolveUserSubjects(subjects), settings.weekStartsOn)
@@ -1287,6 +1470,8 @@ export function AppProvider({ children }) {
       completeMission: (missionId) => dispatch({ type: 'COMPLETE_MISSION', missionId }),
       createPersonalMission: (payload) => dispatch({ type: 'CREATE_PERSONAL_MISSION', payload }),
       purchaseUnlock: (unlockId) => dispatch({ type: 'PURCHASE_UNLOCK', unlockId }),
+      purchaseCharacterItem: (itemId) => dispatch({ type: 'PURCHASE_CHARACTER_ITEM', itemId }),
+      equipCharacterItem: (itemId) => dispatch({ type: 'EQUIP_CHARACTER_ITEM', itemId }),
       saveAccountInfo: (payload) => dispatch({ type: 'SAVE_ACCOUNT_INFO', payload }),
       setLanguage: (language) => dispatch({ type: 'SET_LANGUAGE', language }),
       setAvatar: (avatarDataUrl) => dispatch({ type: 'SET_AVATAR', avatarDataUrl }),

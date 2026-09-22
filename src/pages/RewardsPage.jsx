@@ -5,6 +5,7 @@ import LevelListItem from '../components/rewards/LevelListItem'
 import UnlockFilters from '../components/rewards/UnlockFilters'
 import UnlockCard from '../components/rewards/UnlockCard'
 import AchievementCard from '../components/rewards/AchievementCard'
+import CharacterPanel from '../components/rewards/CharacterPanel'
 import { unlockCategories } from '../data/rewardsData'
 import { LEVELS } from '../utils/levelSystem'
 import { useApp } from '../context/AppContext'
@@ -32,11 +33,13 @@ export default function RewardsPage() {
       setActiveTab('desbloquejos')
       setActiveCategory('tots')
     }
+    if (tutorialStepId === 'character') setActiveTab('personatge')
   }, [tutorialStepId])
 
   const tabs = [
     { id: 'nivells', label: t('rewards.tabs.levels') },
     { id: 'desbloquejos', label: t('rewards.tabs.unlocks') },
+    { id: 'personatge', label: t('rewards.tabs.character') },
     { id: 'assoliments', label: t('rewards.tabs.achievements') },
   ]
   const categories = unlockCategories.map((c) => ({ ...c, label: t(`unlockCategory.${c.id}`) }))
@@ -84,6 +87,8 @@ export default function RewardsPage() {
           </div>
         </div>
       )}
+
+      {activeTab === 'personatge' && <CharacterPanel />}
 
       {activeTab === 'assoliments' && (
         <div className="unlocks-grid">
